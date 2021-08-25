@@ -28,6 +28,8 @@ function App() {
   const [ghAccessToken, setGhAccessToken] = useState(
     localStorage.getItem('gh:token') || '',
   );
+  const [newFileName, setNewFileName] = useState('');
+  const [newFileContent, setNewFileContent] = useState('');
   useEffect(() => {
     (async () => {
       if (!ghAccessToken) {
@@ -66,6 +68,9 @@ function App() {
       // List dir content
       const content = await window.pfs.readdir(dir);
       setDirContent(content);
+
+      const status = await git.status({ fs: window.fs, dir, filepath: '.' })
+      console.log(status)
     })();
   }, [dir, ghAccessToken]);
 
@@ -82,6 +87,12 @@ function App() {
     localStorage.removeItem('gh:token');
     setGhAccessToken('');
   };
+
+  const onAddFile = async (e) => {
+    e.preventDefault();
+    await window.pfs.writeFile(`${dir}/${newFileName}`, newFileContent, 'utf8')
+    
+  }
   return (
     <div className="App">
       <header className="App-header">
@@ -115,6 +126,12 @@ function App() {
             <li key={item}>{item}</li>
           ))}
         </ul>
+
+        <form onSubmit={onAddFile}>
+          <input type="text" onChange={(e) => setNewFileName(e.target.value)} placeholder="file.txt" />
+          <textarea rows="5" onChange={(e) => setNewFileContent(e.target.value)} />
+          <button type="submit">new file</button>
+        </form>
       </main>
     </div>
   );
