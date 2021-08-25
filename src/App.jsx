@@ -20,7 +20,10 @@ const dirExists = async (dir) => {
   }
 };
 
-const log = (label, method = 'log') => (data) => console[method](label, data)
+const log =
+  (label, method = 'log') =>
+  (data) =>
+    console[method](label, data);
 
 function App() {
   const [dir] = useState('/agenda-wip4');
@@ -57,7 +60,7 @@ function App() {
         // onAuth: log('onAuth'),
         onAuth: () => ({
           username: ghAccessToken,
-          password: 'x-oauth-basic'
+          password: 'x-oauth-basic',
         }),
         // headers: {
         //   Authorization: `Bearer ${ghAccessToken}`
@@ -69,19 +72,18 @@ function App() {
       // List dir content
       const content = await window.pfs.readdir(dir);
       setDirContent(content);
-
-      const status = await git.status({ fs: window.fs, dir, filepath: '.' })
-      console.log(status)
     })();
   }, [dir, ghAccessToken]);
 
-  const setAndStoreToken = token => {
+  const setAndStoreToken = (token) => {
     localStorage.setItem('gh:token', token);
     setGhAccessToken(token);
-  }
+  };
 
   const onSuccess = (response) =>
-    sendCode(response.code).then(({ access_token: token }) => setAndStoreToken(token));
+    sendCode(response.code).then(({ access_token: token }) =>
+      setAndStoreToken(token),
+    );
   const onFailure = (response) => console.error(response);
 
   const onLogout = () => {
@@ -91,9 +93,35 @@ function App() {
 
   const onAddFile = async (e) => {
     e.preventDefault();
-    await window.pfs.writeFile(`${dir}/${newFileName}`, newFileContent, 'utf8')
-    
-  }
+    await window.pfs.writeFile(`${dir}/${newFileName}`, newFileContent, 'utf8');
+    const { fs } = window;
+
+    await git.add({ fs, dir, filepath: newFileName });
+    const status = await git.status({ fs, dir, filepath: newFileName });
+    console.log(status);
+
+    let sha = await git.commit({
+      fs: window.fs,
+      dir,
+      message: `Create ${newFileName}`,
+      author: {
+        name: 'Mr. Test',
+        email: 'mrtest@example.com',
+      },
+    });
+
+    console.log(sha);
+
+    await git.push({
+      http,
+      fs,
+      dir,
+      onAuth: () => ({
+        username: ghAccessToken,
+        password: 'x-oauth-basic',
+      }),
+    });
+  };
   return (
     <div className="App">
       <header className="App-header">
@@ -109,16 +137,16 @@ function App() {
           </>
         ) : (
           <>
-          <OAuth2Login
-            authorizationUrl={authorizationUrl}
-            responseType="code"
-            clientId={clientId}
-            redirectUri={redirectUri}
-            scope={scope}
-            onSuccess={onSuccess}
-            onFailure={onFailure}
-          />
-          <input onChange={(e) => setAndStoreToken(e.target.value)} />
+            <OAuth2Login
+              authorizationUrl={authorizationUrl}
+              responseType="code"
+              clientId={clientId}
+              redirectUri={redirectUri}
+              scope={scope}
+              onSuccess={onSuccess}
+              onFailure={onFailure}
+            />
+            <input onChange={(e) => setAndStoreToken(e.target.value)} />
           </>
         )}
 
@@ -129,8 +157,15 @@ function App() {
         </ul>
 
         <form onSubmit={onAddFile}>
-          <input type="text" onChange={(e) => setNewFileName(e.target.value)} placeholder="file.txt" />
-          <textarea rows="5" onChange={(e) => setNewFileContent(e.target.value)} />
+          <input
+            type="text"
+            onChange={(e) => setNewFileName(e.target.value)}
+            placeholder="file.txt"
+          />
+          <textarea
+            rows="5"
+            onChange={(e) => setNewFileContent(e.target.value)}
+          />
           <button type="submit">new file</button>
         </form>
       </main>
