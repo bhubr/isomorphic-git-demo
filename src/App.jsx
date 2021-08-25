@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import git from 'isomorphic-git';
-import http from 'isomorphic-git/http/web';
 import OAuth2Login from 'react-simple-oauth2-login';
 import { sendCode } from './api';
-import { cloneRepo } from './git'
+import { cloneRepo, addCommitPush } from './git';
 import { clientId, authorizationUrl, redirectUri, scope } from './settings';
-
+import FormEvent from './FormEvent';
 
 const log =
   (label, method = 'log') =>
@@ -20,14 +18,6 @@ function App() {
   );
   const [newFileName, setNewFileName] = useState('');
   const [newFileContent, setNewFileContent] = useState('');
-
-  const [customerName, setCustomerName] = useState('');
-  const [groupName, setGroupName] = useState('');
-  const [eventName, setEventName] = useState('');
-  const [eventDate, setEventDate] = useState('');
-  const [fullDay, setFullDay] = useState(true);
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -65,41 +55,28 @@ function App() {
   const onAddFile = async (e) => {
     e.preventDefault();
     await window.pfs.writeFile(`${dir}/${newFileName}`, newFileContent, 'utf8');
-    const { fs } = window;
 
-    await git.add({ fs, dir, filepath: newFileName });
-    const status = await git.status({ fs, dir, filepath: newFileName });
-    console.log(status);
-
-    let sha = await git.commit({
-      fs: window.fs,
+    await addCommitPush({
       dir,
-      message: `Create ${newFileName}`,
-      author: {
-        name: 'Mr. Test',
-        email: 'mrtest@example.com',
-      },
-    });
-
-    console.log(sha);
-
-    await git.push({
-      http,
-      fs,
-      dir,
-      onAuth: () => ({
-        username: ghAccessToken,
-        password: 'x-oauth-basic',
-      }),
+      filepath: newFileName,
+      accessToken: ghAccessToken,
     });
   };
 
-  const onAddEvent = async (e) => {
-    e.preventDefault();
+  const onAddEvent = async ({
+    customerName,
+    groupName,
+    eventName,
+    eventDate,
+    fullDay,
+    startTime,
+    endTime,
+  }) => {
     const timeInterval = fullDay ? 'Full Day' : `${startTime}-${endTime}`;
     const line = `* ${customerName},${groupName},${eventName},${eventDate},${timeInterval}`;
     console.log(line);
   };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -150,59 +127,7 @@ function App() {
           <button type="submit">new file</button>
         </form>
 
-        <h3>New event</h3>
-        <form onSubmit={onAddEvent}>
-          <input
-            type="text"
-            name="customer"
-            onChange={(e) => setCustomerName(e.target.value)}
-            placeholder="Customer name"
-            value={customerName}
-          />
-          <input
-            type="text"
-            name="group"
-            onChange={(e) => setGroupName(e.target.value)}
-            placeholder="Group name"
-            value={groupName}
-          />
-          <input
-            type="text"
-            name="course"
-            onChange={(e) => setEventName(e.target.value)}
-            placeholder="Event name"
-            value={eventName}
-          />
-          <input
-            type="date"
-            name="date"
-            onChange={(e) => setEventDate(e.target.value)}
-            value={eventDate}
-          />
-          <input
-            type="checkbox"
-            name="fullDay"
-            checked={fullDay}
-            onChange={(e) => setFullDay(e.target.checked)}
-          />
-          {!fullDay && (
-            <>
-              <input
-                type="time"
-                name="startTime"
-                onChange={(e) => setStartTime(e.target.value)}
-                value={startTime}
-              />
-              <input
-                type="time"
-                name="endTime"
-                onChange={(e) => setEndTime(e.target.value)}
-                value={endTime}
-              />
-            </>
-          )}
-          <button type="submit">new event</button>
-        </form>
+        <FormEvent onSubmit={onAddEvent} />
       </main>
     </div>
   );

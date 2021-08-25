@@ -12,9 +12,20 @@ const dirExists = async (dir) => {
   }
 };
 
+/**
+ * Clone a repository to a local dir
+ *
+ * @param {*} param0
+ * @returns
+ */
 export const cloneRepo = async ({
-  url, dir, accessToken, onSuccess, onFailure,
+  url,
+  dir,
+  accessToken,
+  onSuccess,
+  onFailure,
 }) => {
+  // Exit if no access token
   if (!accessToken) {
     return;
   }
@@ -24,7 +35,6 @@ export const cloneRepo = async ({
   }
 
   try {
-
     // Clone repo into dir
     await git.clone({
       fs,
@@ -47,4 +57,33 @@ export const cloneRepo = async ({
   } catch (err) {
     onFailure(err);
   }
-}
+};
+
+/**
+ * Add, commit & push a file
+ */
+export const addCommitPush = async ({ dir, filepath, accessToken }) => {
+  await git.add({ fs, dir, filepath });
+  // const status = await git.status({ fs, dir, filepath });
+  // console.log(status);
+
+  await git.commit({
+    fs: window.fs,
+    dir,
+    message: `Create ${filepath}`,
+    author: {
+      name: 'Mr. Test',
+      email: 'mrtest@example.com',
+    },
+  });
+
+  await git.push({
+    http,
+    fs,
+    dir,
+    onAuth: () => ({
+      username: accessToken,
+      password: 'x-oauth-basic',
+    }),
+  });
+};
