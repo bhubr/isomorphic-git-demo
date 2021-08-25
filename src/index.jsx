@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './setup-fs';
+import './helpers/fs';
 import App from './App';
 import './index.css';
 

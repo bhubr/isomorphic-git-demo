@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { sendCode } from './api';
+import { sendCode } from './helpers/api';
 
 export default function withAuth(WrappedComponent) {
   return () => {

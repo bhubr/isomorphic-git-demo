@@ -3,13 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import FormEvent from './FormEvent';
 import FormCustomer from './FormCustomer';
-import { cloneRepo, addCommitPush } from './git';
+import { cloneRepo, addCommitPush } from './helpers/git';
 
 export default function Dashboard({ ghAccessToken, onLogout }) {
   const [dir] = useState('/agenda-wip4');
   const [dirContent, setDirContent] = useState([]);
-  const [newFileName, setNewFileName] = useState('');
-  const [newFileContent, setNewFileContent] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -29,16 +27,16 @@ export default function Dashboard({ ghAccessToken, onLogout }) {
     console.log(content);
   };
 
-  const onAddFile = async (e) => {
-    e.preventDefault();
-    await window.pfs.writeFile(`${dir}/${newFileName}`, newFileContent, 'utf8');
+  // const onAddFile = async (e) => {
+  //   e.preventDefault();
+  //   await window.pfs.writeFile(`${dir}/${newFileName}`, newFileContent, 'utf8');
 
-    await addCommitPush({
-      dir,
-      filepath: newFileName,
-      accessToken: ghAccessToken,
-    });
-  };
+  //   await addCommitPush({
+  //     dir,
+  //     filepath: newFileName,
+  //     accessToken: ghAccessToken,
+  //   });
+  // };
 
   const onAddEvent = async ({
     customerName,
@@ -73,20 +71,6 @@ export default function Dashboard({ ghAccessToken, onLogout }) {
           </li>
         ))}
       </ul>
-
-      <h3>New file</h3>
-      <form onSubmit={onAddFile}>
-        <input
-          type="text"
-          onChange={(e) => setNewFileName(e.target.value)}
-          placeholder="file.txt"
-        />
-        <textarea
-          rows="5"
-          onChange={(e) => setNewFileContent(e.target.value)}
-        />
-        <button type="submit">new file</button>
-      </form>
 
       <FormCustomer onSubmit={onAddCustomer} />
       <FormEvent onSubmit={onAddEvent} />
