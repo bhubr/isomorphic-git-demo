@@ -101,10 +101,9 @@ function App() {
   };
 
   const showFileContent = async (file) => {
-    const buf = await window.pfs.readFile(`${dir}/${file}`)
-    const content = buf.toString();
-    console.log(content)
-  }
+    const content = await window.pfs.readFile(`${dir}/${file}`, 'utf8');
+    console.log(content);
+  };
 
   const onAddFile = async (e) => {
     e.preventDefault();
@@ -138,14 +137,12 @@ function App() {
     });
   };
 
-
-
   const onAddEvent = async (e) => {
     e.preventDefault();
-    const timeInterval = fullDay ? 'Full Day' : `${startTime}-${endTime}`
-    const line = `* ${customerName},${groupName},${eventName},${eventDate},${timeInterval}`
-    console.log(line)
-  }
+    const timeInterval = fullDay ? 'Full Day' : `${startTime}-${endTime}`;
+    const line = `* ${customerName},${groupName},${eventName},${eventDate},${timeInterval}`;
+    console.log(line);
+  };
   return (
     <div className="App">
       <header className="App-header">
@@ -176,7 +173,9 @@ function App() {
 
         <ul>
           {dirContent.map((item) => (
-            <li key={item} onClick={() => showFileContent(item)}>{item}</li>
+            <li key={item} onClick={() => showFileContent(item)}>
+              {item}
+            </li>
           ))}
         </ul>
 
@@ -217,16 +216,34 @@ function App() {
             placeholder="Event name"
             value={eventName}
           />
-          <input type="date" name="date" onChange={(e) => setEventDate(e.target.value)} value={eventDate} />
-          <input type="checkbox" name="fullDay" checked={fullDay} onChange={e => setFullDay(e.target.checked)} />
-          {
-            !fullDay && (
-              <>
-  <input type="time" name="startTime" onChange={(e) => setStartTime(e.target.value)} value={startTime} />
-<input type="time" name="endTime" onChange={(e) => setEndTime(e.target.value)} value={endTime} />
-              </>
-            )
-          }
+          <input
+            type="date"
+            name="date"
+            onChange={(e) => setEventDate(e.target.value)}
+            value={eventDate}
+          />
+          <input
+            type="checkbox"
+            name="fullDay"
+            checked={fullDay}
+            onChange={(e) => setFullDay(e.target.checked)}
+          />
+          {!fullDay && (
+            <>
+              <input
+                type="time"
+                name="startTime"
+                onChange={(e) => setStartTime(e.target.value)}
+                value={startTime}
+              />
+              <input
+                type="time"
+                name="endTime"
+                onChange={(e) => setEndTime(e.target.value)}
+                value={endTime}
+              />
+            </>
+          )}
           <button type="submit">new event</button>
         </form>
       </main>
