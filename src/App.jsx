@@ -23,7 +23,7 @@ const dirExists = async (dir) => {
 const log = (label, method = 'log') => (data) => console[method](label, data)
 
 function App() {
-  const [dir] = useState('/agenda-wip');
+  const [dir] = useState('/agenda-wip4');
   const [dirContent, setDirContent] = useState([]);
   const [ghAccessToken, setGhAccessToken] = useState(
     localStorage.getItem('gh:token') || '',
@@ -47,17 +47,18 @@ function App() {
         dir,
         corsProxy: 'https://cors.isomorphic-git.org',
         // works with a PAT
-        url: `https://bhubr:${ghAccessToken}@github.com/bhubr/git-agenda`,
+        // url: `https://bhubr:${ghAccessToken}@github.com/bhubr/git-agenda`,
+        url: `https://github.com/bhubr/git-agenda`,
         ref: 'master',
         singleBranch: true,
         depth: 10,
         // oauth2format: 'github',
         // token: ghAccessToken,
         // onAuth: log('onAuth'),
-        // onAuth: () => ({
-        //   oauth2format: 'github',
-        //   token: ghAccessToken,
-        // }),
+        onAuth: () => ({
+          username: ghAccessToken,
+          password: 'x-oauth-basic'
+        }),
         // headers: {
         //   Authorization: `Bearer ${ghAccessToken}`
         // },
