@@ -13,3 +13,5 @@ export const redirectUri = process.env.REACT_APP_OAUTH2_REDIRECT_URI;
 // Authorization code flow only: base URL for your server
 // The one provided below is that of the sample Express server provided
 export const apiUrl = process.env.REACT_APP_API_URL;
+
+export const scope = process.env.REACT_APP_OAUTH2_SCOPES;
