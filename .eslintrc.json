@@ -25,6 +25,7 @@
     "react/no-unescaped-entities": "warn",
     "react/prop-types": "warn",
     "react/jsx-curly-newline": "off",
-    "react/jsx-one-expression-per-line": "off"
+    "react/jsx-one-expression-per-line": "off",
+    "import/prefer-default-export": "off"
   }
 }
