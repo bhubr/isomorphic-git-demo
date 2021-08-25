@@ -33,6 +33,15 @@ function App() {
   );
   const [newFileName, setNewFileName] = useState('');
   const [newFileContent, setNewFileContent] = useState('');
+
+  const [customerName, setCustomerName] = useState('');
+  const [groupName, setGroupName] = useState('');
+  const [eventName, setEventName] = useState('');
+  const [eventDate, setEventDate] = useState('');
+  const [fullDay, setFullDay] = useState(true);
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
+
   useEffect(() => {
     (async () => {
       if (!ghAccessToken) {
@@ -91,6 +100,12 @@ function App() {
     setGhAccessToken('');
   };
 
+  const showFileContent = async (file) => {
+    const buf = await window.pfs.readFile(`${dir}/${file}`)
+    const content = buf.toString();
+    console.log(content)
+  }
+
   const onAddFile = async (e) => {
     e.preventDefault();
     await window.pfs.writeFile(`${dir}/${newFileName}`, newFileContent, 'utf8');
@@ -122,6 +137,15 @@ function App() {
       }),
     });
   };
+
+
+
+  const onAddEvent = async (e) => {
+    e.preventDefault();
+    const timeInterval = fullDay ? 'Full Day' : `${startTime}-${endTime}`
+    const line = `* ${customerName},${groupName},${eventName},${eventDate},${timeInterval}`
+    console.log(line)
+  }
   return (
     <div className="App">
       <header className="App-header">
@@ -152,10 +176,11 @@ function App() {
 
         <ul>
           {dirContent.map((item) => (
-            <li key={item}>{item}</li>
+            <li key={item} onClick={() => showFileContent(item)}>{item}</li>
           ))}
         </ul>
 
+        <h3>New file</h3>
         <form onSubmit={onAddFile}>
           <input
             type="text"
@@ -167,6 +192,42 @@ function App() {
             onChange={(e) => setNewFileContent(e.target.value)}
           />
           <button type="submit">new file</button>
+        </form>
+
+        <h3>New event</h3>
+        <form onSubmit={onAddEvent}>
+          <input
+            type="text"
+            name="customer"
+            onChange={(e) => setCustomerName(e.target.value)}
+            placeholder="Customer name"
+            value={customerName}
+          />
+          <input
+            type="text"
+            name="group"
+            onChange={(e) => setGroupName(e.target.value)}
+            placeholder="Group name"
+            value={groupName}
+          />
+          <input
+            type="text"
+            name="course"
+            onChange={(e) => setEventName(e.target.value)}
+            placeholder="Event name"
+            value={eventName}
+          />
+          <input type="date" name="date" onChange={(e) => setEventDate(e.target.value)} value={eventDate} />
+          <input type="checkbox" name="fullDay" checked={fullDay} onChange={e => setFullDay(e.target.checked)} />
+          {
+            !fullDay && (
+              <>
+  <input type="time" name="startTime" onChange={(e) => setStartTime(e.target.value)} value={startTime} />
+<input type="time" name="endTime" onChange={(e) => setEndTime(e.target.value)} value={endTime} />
+              </>
+            )
+          }
+          <button type="submit">new event</button>
         </form>
       </main>
     </div>
