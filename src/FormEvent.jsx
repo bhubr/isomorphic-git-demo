@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { createEvent } from './store/actions/events';
+import { createEvent, updateEvent } from './store/actions/events';
 
 const useForm = (initialData) => {
   const [data, setData] = useState(initialData);
@@ -139,6 +139,16 @@ export default function FormEventContainer({ dir, event, onCancel }) {
   const customers = useSelector((state) => state.customers);
 
   useEffect(() => {
+    if (event) {
+      const { id, customerId, groupId, ...rest } = event;
+      setCustomerId(customerId);
+      setData(rest);
+      setTimeout(() => setGroupId(groupId), 50);
+    }
+  }, [event]);
+
+
+  useEffect(() => {
     console.log('customer change effect', customerId);
     setGroupId('');
     setCustomer(customers.find((c) => c.id === customerId));
@@ -146,6 +156,10 @@ export default function FormEventContainer({ dir, event, onCancel }) {
 
   const onAddEvent = () =>
     dispatch(createEvent(dir, { customerId, groupId, ...data }));
+
+  const onUpdateEvent = () =>
+    dispatch(updateEvent(dir, { id: event?.id, customerId, groupId, ...data }));
+
 
   const onReset = () => {
     onCancel();
@@ -156,8 +170,8 @@ export default function FormEventContainer({ dir, event, onCancel }) {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    // const submitFn = event ? onUpdateEvent : onAddEvent;
-    const submitFn = event ? (d) => console.warn('update N/A', d) : onAddEvent;
+    const submitFn = event ? onUpdateEvent : onAddEvent;
+    // const submitFn = event ? (d) => console.warn('update N/A', d) : onAddEvent;
     submitFn();
     onReset();
   };

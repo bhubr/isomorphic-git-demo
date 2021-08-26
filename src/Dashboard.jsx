@@ -21,6 +21,7 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
   const [metadata, setMetadata] = useState(null);
   const [editingCustomer, setEditingCustomer] = useState(null);
   const [editingGroup, setEditingGroup] = useState(null);
+  const [editingEvent, setEditingEvent] = useState(null);
 
   const { customers, groups, events } = useSelector((state) => ({
     customers: state.customers,
@@ -126,7 +127,12 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
       <h3>Events</h3>
       <ul>
         {(events || []).map((item) => (
-          <li key={item.id}>{item.name}</li>
+          <li key={item.id}>
+            {item.name}{' '}
+            <button type="button" onClick={() => setEditingEvent(item)}>
+              edit
+            </button>
+          </li>
         ))}
       </ul>
 
@@ -145,8 +151,9 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
         onCancel={() => setEditingGroup(null)}
       />
       <FormEvent
-        onSubmit={onAddEvent}
-        onCancel={() => console.log('cancel edit event')}
+        dir={dir}
+        event={editingEvent}
+        onCancel={() => setEditingEvent(null)}
       />
     </main>
   );
