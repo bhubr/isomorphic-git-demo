@@ -7,6 +7,7 @@ import { TYPE_EVENT } from '../../constants';
 export const EVENTS_POPULATE = 'EVENTS_POPULATE';
 export const EVENTS_CREATE_SUCCESS = 'EVENTS_CREATE_SUCCESS';
 export const EVENTS_UPDATE_SUCCESS = 'EVENTS_UPDATE_SUCCESS';
+export const EVENTS_DELETE_SUCCESS = 'EVENTS_DELETE_SUCCESS';
 
 const eventsPopulateAction = (events) => ({
   type: EVENTS_POPULATE,
@@ -27,6 +28,11 @@ const eventsCreateAction = (event) => ({
 
 const eventsUpdateAction = (event) => ({
   type: EVENTS_UPDATE_SUCCESS,
+  event,
+});
+
+const eventsDeleteAction = (event) => ({
+  type: EVENTS_DELETE_SUCCESS,
   event,
 });
 
@@ -51,7 +57,7 @@ const makeSummary = (data, customers) => {
   const { customerId, groupId } = data;
   const cust = customers.find(c => c.id === customerId);
   const grp = cust.groups.find(g => g.id === groupId);
-  return `${cust.name} ${grp.name} ${data.name}`;
+  return `${cust.name} - ${grp.name} - ${data.name}`;
 }
 
 export const createEvent = (dir, data) => async (dispatch, getState) => {
@@ -95,3 +101,27 @@ export const updateEvent = (dir, { id, ...rest }) => async (dispatch, getState) 
 
   dispatch(eventsUpdateAction(updatedEvent));
 }
+
+/**
+ * Delete an event
+ *
+ * @param {string} dir
+ * @param {string} eventId
+ * @returns
+ */
+export const deleteEvent = (dir, eventId) => async (dispatch, getState) => {
+  const { customers, events, auth } = getState();
+  const deletedEvent = events.find((e) => e.id === eventId);
+  const nextEvents = events.filter((e) => e.id !== eventId);
+  const customer = customers.find(c => c.id === deletedEvent.customerId);
+  const group = customer.groups.find(g => g.id === deletedEvent.groupId);
+
+  await writeEvents({
+    dir,
+    auth,
+    events: nextEvents.map(evt => ({ ...evt, summary: makeSummary(evt, customers )})),
+    message: `[event] delete event "${deletedEvent.name}" (${customer.name}/${group.name})`
+  })
+
+  dispatch(eventsDeleteAction(deletedEvent));
+};

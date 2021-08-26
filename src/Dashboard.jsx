@@ -13,7 +13,7 @@ import {
   deleteCustomer,
   deleteGroup,
 } from './store/actions/metadata';
-import { readEvents } from './store/actions/events';
+import { readEvents, deleteEvent } from './store/actions/events';
 
 export default function Dashboard({ ghAccessToken, user, onLogout }) {
   const [dir] = useState('/agenda-wip4');
@@ -70,6 +70,8 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
     dispatch(deleteCustomer(dir, customerId));
 
   const onDeleteGroup = (groupId) => dispatch(deleteGroup(dir, groupId));
+
+  const onDeleteEvent = (eventId) => dispatch(deleteEvent(dir, eventId));
 
   return (
     <main>
@@ -131,6 +133,9 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
             {item.name}{' '}
             <button type="button" onClick={() => setEditingEvent(item)}>
               edit
+            </button>{' '}
+            <button type="button" onClick={() => onDeleteEvent(item.id)}>
+              x
             </button>
           </li>
         ))}
