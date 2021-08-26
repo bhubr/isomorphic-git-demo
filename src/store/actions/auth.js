@@ -10,21 +10,21 @@ const loginSuccessAction = (token, user) => ({
   type: AUTH_LOGIN_SUCCESS,
   token,
   user,
-})
+});
 
 export const login = (code) => async (dispatch) => {
-      const { access_token: token } = await sendCode(code);
-      const { name, email } = await getUser(token);
-      const user = { name, email };
-      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ user, token }));
-      dispatch(loginSuccessAction(token, user));
-}
+  const { access_token: token } = await sendCode(code);
+  const { name, email } = await getUser(token);
+  const user = { name, email };
+  localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ user, token }));
+  dispatch(loginSuccessAction(token, user));
+};
 
 export const logoutAction = () => ({
-  type: AUTH_LOGOUT
-})
+  type: AUTH_LOGOUT,
+});
 
 export const logout = () => (dispatch) => {
   localStorage.removeItem(AUTH_STORAGE_KEY);
   dispatch(logoutAction());
-}
+};

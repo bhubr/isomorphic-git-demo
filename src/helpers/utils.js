@@ -9,4 +9,4 @@ export function generateId(type) {
 
   const hex = array.reduce((str, n) => str + n.toString(16), '');
   return `${type}_${hex}`;
-};
+}

@@ -6,7 +6,7 @@ import useStateStorage from './hooks/useStateStorage';
 export default function withAuth(WrappedComponent) {
   return () => {
     const dispatch = useDispatch();
-    const auth = useSelector(state => state.auth);
+    const auth = useSelector((state) => state.auth);
 
     const onCodeSuccess = async (response) => {
       dispatch(login(response.code));

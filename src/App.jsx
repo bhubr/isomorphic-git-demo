@@ -31,11 +31,7 @@ function App({ auth, onLogout, onCodeSuccess, onCodeFailure }) {
     );
   }
 
-  return (
-    <div className="App">
-      {content}
-    </div>
-  );
+  return <div className="App">{content}</div>;
 }
 
 export default withAuth(App);

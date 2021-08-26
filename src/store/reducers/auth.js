@@ -1,4 +1,8 @@
-import { AUTH_LOGIN_SUCCESS, AUTH_LOGOUT, AUTH_STORAGE_KEY } from '../actions/auth';
+import {
+  AUTH_LOGIN_SUCCESS,
+  AUTH_LOGOUT,
+  AUTH_STORAGE_KEY,
+} from '../actions/auth';
 
 const storedState = localStorage.getItem(AUTH_STORAGE_KEY);
 const initialState = storedState ? JSON.parse(storedState) : null;

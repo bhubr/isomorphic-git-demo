@@ -8,15 +8,23 @@ import FormGroup from './FormGroup';
 import { cloneRepo, addCommitPush } from './helpers/git';
 import { readFile, writeFile } from './helpers/fs';
 import { generateId } from './helpers/utils';
-import { readMetadata, createCustomer, deleteCustomer } from './store/actions/metadata';
+import {
+  readMetadata,
+  deleteCustomer,
+  deleteGroup,
+} from './store/actions/metadata';
 
 export default function Dashboard({ ghAccessToken, user, onLogout }) {
   const [dir] = useState('/agenda-wip4');
   const [dirContent, setDirContent] = useState([]);
   const [metadata, setMetadata] = useState(null);
   const [editingCustomer, setEditingCustomer] = useState(null);
+  const [editingGroup, setEditingGroup] = useState(null);
 
-  const customers = useSelector(state => state.customers);
+  const { customers, groups } = useSelector((state) => ({
+    customers: state.customers,
+    groups: state.metadata?.groups,
+  }));
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -27,7 +35,7 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
         accessToken: ghAccessToken,
         onSuccess: async (files) => {
           setDirContent(files);
-          console.log('firing readMetadata')
+          console.log('firing readMetadata');
           dispatch(readMetadata(dir));
         },
         onFailure: (err) => console.error('clone error', err),
@@ -39,17 +47,6 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
     const content = await readFile(dir, file);
     console.log(content);
   };
-
-  // const onAddFile = async (e) => {
-  //   e.preventDefault();
-  //   await window.pfs.writeFile(`${dir}/${newFileName}`, newFileContent, 'utf8');
-
-  //   await addCommitPush({
-  //     dir,
-  //     filepath: newFileName,
-  //     accessToken: ghAccessToken,
-  //   });
-  // };
 
   const onAddEvent = async ({
     customerName,
@@ -66,7 +63,7 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
   };
 
   const onAddGroup = async ({ customerId, groupName }) => {
-    const customer = metadata.customers.find(c => c.id === customerId);
+    const customer = metadata.customers.find((c) => c.id === customerId);
     const groups = metadata.groups ? [...metadata.groups] : [];
 
     const newGroup = {
@@ -77,7 +74,7 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
     const nextGroups = [...groups, newGroup];
     const nextMeta = { ...metadata, groups: nextGroups };
     const nextMetaJSON = JSON.stringify(nextMeta, null, 2);
-    console.log(nextMeta)
+    console.log(nextMeta);
     // await writeFile(dir, 'metadata.json', nextMetaJSON);
 
     // await addCommitPush({
@@ -91,13 +88,15 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
     setMetadata(nextMeta);
   };
 
-  const onDeleteCustomer = (customerId) => dispatch(deleteCustomer(dir, customerId));
+  const onDeleteCustomer = (customerId) =>
+    dispatch(deleteCustomer(dir, customerId));
+
+  const onDeleteGroup = (groupId) => dispatch(deleteGroup(dir, groupId));
 
   return (
     <main>
       <nav>
-        <span>Logged in as {user.name}</span>
-        {' '}
+        <span>Logged in as {user.name}</span>{' '}
         <button type="button" onClick={onLogout}>
           Logout
         </button>
@@ -116,7 +115,33 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
       <ul>
         {customers.map((item) => (
           <li key={item.id}>
-            {item.name} <button type="button" onClick={() => setEditingCustomer(item)}>edit</button> <button type="button" onClick={() => onDeleteCustomer(item.id)}>x</button>
+            {item.name}{' '}
+            <button type="button" onClick={() => setEditingCustomer(item)}>
+              edit
+            </button>{' '}
+            <button type="button" onClick={() => onDeleteCustomer(item.id)}>
+              x
+            </button>
+            <ul>
+              {(item.groups || []).map((g) => (
+                <li key={g.id}>{g.name}</li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+
+      <h3>Groups</h3>
+      <ul>
+        {(groups || []).map((item) => (
+          <li key={item.id}>
+            {item.name}{' '}
+            <button type="button" onClick={() => setEditingGroup(item)}>
+              edit
+            </button>{' '}
+            <button type="button" onClick={() => onDeleteGroup(item.id)}>
+              x
+            </button>
           </li>
         ))}
       </ul>
@@ -125,8 +150,16 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
         <code>{JSON.stringify(metadata, null, 2)}</code>
       </pre>
 
-      <FormCustomer dir={dir} customer={editingCustomer} onCancel={() => setEditingCustomer(null)} />
-      <FormGroup customers={metadata?.customers || []} onSubmit={onAddGroup} />
+      <FormCustomer
+        dir={dir}
+        customer={editingCustomer}
+        onCancel={() => setEditingCustomer(null)}
+      />
+      <FormGroup
+        dir={dir}
+        group={editingGroup}
+        onCancel={() => setEditingGroup(null)}
+      />
       <FormEvent onSubmit={onAddEvent} />
     </main>
   );
