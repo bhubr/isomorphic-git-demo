@@ -62,32 +62,6 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
     console.log(line);
   };
 
-  const onAddGroup = async ({ customerId, groupName }) => {
-    const customer = metadata.customers.find((c) => c.id === customerId);
-    const groups = metadata.groups ? [...metadata.groups] : [];
-
-    const newGroup = {
-      id: generateId(),
-      customerId: customer.id,
-      name: groupName,
-    };
-    const nextGroups = [...groups, newGroup];
-    const nextMeta = { ...metadata, groups: nextGroups };
-    const nextMetaJSON = JSON.stringify(nextMeta, null, 2);
-    console.log(nextMeta);
-    // await writeFile(dir, 'metadata.json', nextMetaJSON);
-
-    // await addCommitPush({
-    //   dir,
-    //   filepath: 'metadata.json',
-    //   accessToken: ghAccessToken,
-    //   message: `[customer] create customer "${customerName}"`,
-    //   author: user,
-    // });
-
-    setMetadata(nextMeta);
-  };
-
   const onDeleteCustomer = (customerId) =>
     dispatch(deleteCustomer(dir, customerId));
 
