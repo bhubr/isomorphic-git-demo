@@ -13,6 +13,7 @@ import {
   deleteCustomer,
   deleteGroup,
 } from './store/actions/metadata';
+import { readEvents } from './store/actions/events';
 
 export default function Dashboard({ ghAccessToken, user, onLogout }) {
   const [dir] = useState('/agenda-wip4');
@@ -38,6 +39,7 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
           setDirContent(files);
           console.log('firing readMetadata');
           dispatch(readMetadata(dir));
+          dispatch(readEvents(dir));
         },
         onFailure: (err) => console.error('clone error', err),
       });
@@ -124,9 +126,7 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
       <h3>Events</h3>
       <ul>
         {(events || []).map((item) => (
-          <li key={item.id}>
-            {item.name}
-          </li>
+          <li key={item.id}>{item.name}</li>
         ))}
       </ul>
 
@@ -144,7 +144,10 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
         group={editingGroup}
         onCancel={() => setEditingGroup(null)}
       />
-      <FormEvent onSubmit={onAddEvent} onCancel={() => console.log('cancel edit event')} />
+      <FormEvent
+        onSubmit={onAddEvent}
+        onCancel={() => console.log('cancel edit event')}
+      />
     </main>
   );
 }

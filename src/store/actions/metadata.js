@@ -2,7 +2,7 @@ import groupBy from 'lodash/groupBy';
 import { readFile, writeFile } from '../../helpers/fs';
 import { addCommitPush } from '../../helpers/git';
 import { generateId } from '../../helpers/utils';
-import { TYPE_CUSTOMER, TYPE_GROUP, TYPE_EVENT } from '../../constants';
+import { TYPE_CUSTOMER, TYPE_GROUP } from '../../constants';
 
 export const METADATA_POPULATE = 'METADATA_POPULATE';
 export const CUSTOMERS_POPULATE = 'CUSTOMERS_POPULATE';

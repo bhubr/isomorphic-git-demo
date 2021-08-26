@@ -45,6 +45,17 @@ function FormEvent({
   groupId,
   setGroupId,
 }) {
+  const autoPopulate = () => {
+    setCustomerId(customers[0].id);
+
+    setProp('name')({ target: { value: 'TypeScript' } });
+    setProp('date')({ target: { value: '2021-09-25' } });
+    setProp('fullDay')({ target: { type: 'checkbox', checked: false } });
+    setProp('startTime')({ target: { value: '08:30' } });
+    setProp('endTime')({ target: { value: '12:00' } });
+
+    setTimeout(() => setGroupId(customers[0].groups[0].id), 200);
+  };
   return (
     <>
       <h3>New event</h3>
@@ -103,6 +114,9 @@ function FormEvent({
           </>
         )}
         <button type="submit">new event</button>
+        <button type="button" onClick={autoPopulate}>
+          autopop
+        </button>
       </form>
     </>
   );
@@ -119,29 +133,31 @@ export default function FormEventContainer({ dir, event, onCancel }) {
   const [customer, setCustomer] = useState(null);
   const [customerId, setCustomerId] = useState('');
   const [groupId, setGroupId] = useState('');
-  const { data, setData, setProp } = useForm({...initialData});
+  const { data, setData, setProp } = useForm({ ...initialData });
 
   const dispatch = useDispatch();
   const customers = useSelector((state) => state.customers);
 
   useEffect(() => {
+    console.log('customer change effect', customerId);
     setGroupId('');
     setCustomer(customers.find((c) => c.id === customerId));
   }, [customerId]);
 
-  const onAddEvent = () => dispatch(createEvent(dir, { customerId, groupId, ...data }));
+  const onAddEvent = () =>
+    dispatch(createEvent(dir, { customerId, groupId, ...data }));
 
   const onReset = () => {
     onCancel();
     setCustomerId('');
     setGroupId('');
-    setData({...initialData});
+    setData({ ...initialData });
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
     // const submitFn = event ? onUpdateEvent : onAddEvent;
-    const submitFn = event ? d => console.warn('update N/A', d) : onAddEvent;
+    const submitFn = event ? (d) => console.warn('update N/A', d) : onAddEvent;
     submitFn();
     onReset();
   };
