@@ -5,6 +5,7 @@ import { genId } from '../../helpers/utils';
 export const METADATA_POPULATE = 'METADATA_POPULATE';
 export const CUSTOMERS_POPULATE = 'CUSTOMERS_POPULATE';
 export const CUSTOMERS_CREATE_SUCCESS = 'CUSTOMERS_CREATE_SUCCESS';
+export const CUSTOMERS_UPDATE_SUCCESS = 'CUSTOMERS_UPDATE_SUCCESS';
 export const CUSTOMERS_DELETE_SUCCESS = 'CUSTOMERS_DELETE_SUCCESS';
 
 export const metadataPopulateAction = (metadata) => ({
@@ -12,17 +13,22 @@ export const metadataPopulateAction = (metadata) => ({
   metadata,
 })
 
-export const customersPopulateAction = (customers) => ({
+const customersPopulateAction = (customers) => ({
   type: CUSTOMERS_POPULATE,
   customers,
 })
 
-export const customersCreateAction = (customer) => ({
+const customersCreateAction = (customer) => ({
   type: CUSTOMERS_CREATE_SUCCESS,
   customer,
 })
 
-export const customersDeleteAction = (customer) => ({
+const customersUpdateAction = (customer) => ({
+  type: CUSTOMERS_UPDATE_SUCCESS,
+  customer,
+});
+
+const customersDeleteAction = (customer) => ({
   type: CUSTOMERS_DELETE_SUCCESS,
   customer,
 })
@@ -49,7 +55,7 @@ const writeMetadata = async ({ dir, auth, meta, message }) => {
 
 }
 
-export const createCustomer = (dir, name) => async (dispatch, getState) => {
+export const createCustomer = (dir, { name }) => async (dispatch, getState) => {
   const { customers, metadata, auth } = getState();
   const newCustomer = {
     id: genId(),
@@ -63,6 +69,22 @@ export const createCustomer = (dir, name) => async (dispatch, getState) => {
   });
 
   dispatch(customersCreateAction(newCustomer));
+  dispatch(metadataPopulateAction(nextMeta));
+  console.log(getState());
+}
+
+export const updateCustomer = (dir, { id, name }) => async (dispatch, getState) => {
+  const { customers, metadata, auth } = getState();
+  const existingCustomer = customers.find(c => c.id === id);
+  const updatedCustomer = { ...existingCustomer, name };
+  const nextCustomers = customers.map(c => c.id === id ? updatedCustomer : c);
+  const nextMeta = { ...metadata, customers: nextCustomers };
+
+  await writeMetadata({
+    dir, auth, meta: nextMeta, message: `[customer] update customer "${existingCustomer.name}" -> "${name}"`
+  });
+
+  dispatch(customersUpdateAction(updatedCustomer));
   dispatch(metadataPopulateAction(nextMeta));
   console.log(getState());
 }

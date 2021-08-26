@@ -14,6 +14,8 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
   const [dir] = useState('/agenda-wip4');
   const [dirContent, setDirContent] = useState([]);
   const [metadata, setMetadata] = useState(null);
+  const [editingCustomer, setEditingCustomer] = useState(null);
+
   const customers = useSelector(state => state.customers);
   const dispatch = useDispatch();
 
@@ -89,8 +91,6 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
     setMetadata(nextMeta);
   };
 
-  const onAddCustomer = ({ customerName }) => dispatch(createCustomer(dir, customerName));
-
   const onDeleteCustomer = (customerId) => dispatch(deleteCustomer(dir, customerId));
 
   return (
@@ -116,7 +116,7 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
       <ul>
         {customers.map((item) => (
           <li key={item.id}>
-            {item.name} <button type="button" onClick={() => onDeleteCustomer(item.id)}>x</button>
+            {item.name} <button type="button" onClick={() => setEditingCustomer(item)}>edit</button> <button type="button" onClick={() => onDeleteCustomer(item.id)}>x</button>
           </li>
         ))}
       </ul>
@@ -125,7 +125,7 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
         <code>{JSON.stringify(metadata, null, 2)}</code>
       </pre>
 
-      <FormCustomer onSubmit={onAddCustomer} />
+      <FormCustomer dir={dir} customer={editingCustomer} onCancel={() => setEditingCustomer(null)} />
       <FormGroup customers={metadata?.customers || []} onSubmit={onAddGroup} />
       <FormEvent onSubmit={onAddEvent} />
     </main>
