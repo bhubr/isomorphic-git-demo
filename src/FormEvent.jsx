@@ -35,7 +35,10 @@ const Select = ({ id, name, label, options, value, onChange }) => (
 );
 
 function FormEvent({
+  formTitle,
+  btnTitle,
   onSubmit,
+  onCancel,
   customers,
   data,
   setProp,
@@ -58,7 +61,7 @@ function FormEvent({
   };
   return (
     <>
-      <h3>New event</h3>
+      <h3>{formTitle}</h3>
       <form onSubmit={onSubmit}>
         <Select
           id="event-customer-dropdown"
@@ -113,7 +116,12 @@ function FormEvent({
             />
           </>
         )}
-        <button type="submit">new event</button>
+        <button type="submit">{btnTitle}</button>
+        {onCancel && (
+          <button type="button" onClick={onCancel}>
+            Cancel
+          </button>
+        )}
         <button type="button" onClick={autoPopulate}>
           autopop
         </button>
@@ -178,6 +186,8 @@ export default function FormEventContainer({ dir, event, onCancel }) {
 
   return (
     <FormEvent
+      formTitle={event ? `Edit event "${event.name}"` : 'New event'}
+      btnTitle={event ? 'Update' : 'Create'}
       customers={customers}
       data={data}
       customerId={customerId}
@@ -187,6 +197,7 @@ export default function FormEventContainer({ dir, event, onCancel }) {
       setGroupId={setGroupId}
       setProp={setProp}
       onSubmit={onSubmit}
+      onCancel={onReset}
     />
   );
 }
