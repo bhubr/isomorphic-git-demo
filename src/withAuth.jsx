@@ -1,29 +1,27 @@
 import React from 'react';
-import { sendCode, getUser } from './helpers/api';
+import { useDispatch, useSelector } from 'react-redux';
+import { login, logout } from './store/actions/auth';
 import useStateStorage from './hooks/useStateStorage';
 
 export default function withAuth(WrappedComponent) {
   return () => {
-    const [ghAccessToken, setGhAccessToken] = useStateStorage('gh:token', '');
-    const [user, setUser] = useStateStorage('gh:user', null);
+    const dispatch = useDispatch();
+    const auth = useSelector((state) => state.auth);
 
     const onCodeSuccess = async (response) => {
-      const { access_token: token } = await sendCode(response.code);
-      setGhAccessToken(token);
-      const { name, email } = await getUser(token);
-      setUser({ name, email });
+      dispatch(login(response.code));
     };
     const onCodeFailure = (response) => console.error(response);
 
     const onLogout = () => {
-      localStorage.removeItem('gh:token');
-      setGhAccessToken('');
+      dispatch(logout());
+      // localStorage.removeItem('gh:token');
+      // setGhAccessToken('');
     };
 
     return (
       <WrappedComponent
-        ghAccessToken={ghAccessToken}
-        user={user}
+        auth={auth}
         onLogout={onLogout}
         onCodeSuccess={onCodeSuccess}
         onCodeFailure={onCodeFailure}

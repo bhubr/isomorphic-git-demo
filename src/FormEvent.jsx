@@ -1,85 +1,203 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { createEvent, updateEvent } from './store/actions/events';
 
-export default function FormEvent({ onSubmit: onSubmitFn }) {
-  const [customerName, setCustomerName] = useState('');
-  const [groupName, setGroupName] = useState('');
-  const [eventName, setEventName] = useState('');
-  const [eventDate, setEventDate] = useState('');
-  const [fullDay, setFullDay] = useState(true);
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
+const useForm = (initialData) => {
+  const [data, setData] = useState(initialData);
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    onSubmitFn({
-      customerName,
-      groupName,
-      eventName,
-      eventDate,
-      fullDay,
-      startTime,
-      endTime,
-    });
+  const setProp =
+    (k) =>
+    ({ target }) =>
+      setData((prevData) => ({
+        ...prevData,
+        [k]: target.type === 'checkbox' ? target.checked : target.value,
+      }));
+
+  return {
+    data,
+    setData,
+    setProp,
+  };
+};
+
+const Select = ({ id, name, label, options, value, onChange }) => (
+  <>
+    <label htmlFor={id}>{label}</label>
+    <select id={id} name={name} onChange={onChange} value={value} required>
+      <option value="">&mdash;</option>
+      {options.map((o) => (
+        <option key={o.id} value={o.id}>
+          {o.name}
+        </option>
+      ))}
+    </select>
+  </>
+);
+
+function FormEvent({
+  formTitle,
+  btnTitle,
+  onSubmit,
+  onCancel,
+  customers,
+  data,
+  setProp,
+  customerId,
+  setCustomerId,
+  customer,
+  groupId,
+  setGroupId,
+}) {
+  const autoPopulate = () => {
+    setCustomerId(customers[0].id);
+
+    setProp('name')({ target: { value: 'TypeScript' } });
+    setProp('date')({ target: { value: '2021-09-25' } });
+    setProp('fullDay')({ target: { type: 'checkbox', checked: false } });
+    setProp('startTime')({ target: { value: '08:30' } });
+    setProp('endTime')({ target: { value: '12:00' } });
+
+    setTimeout(() => setGroupId(customers[0].groups[0].id), 200);
   };
   return (
     <>
-      <h3>New event</h3>
+      <h3>{formTitle}</h3>
       <form onSubmit={onSubmit}>
-        <input
-          type="text"
-          name="customer"
-          onChange={(e) => setCustomerName(e.target.value)}
-          placeholder="Customer name"
-          value={customerName}
-          required
+        <Select
+          id="event-customer-dropdown"
+          name="customerId"
+          label="Customer"
+          options={customers}
+          value={customerId}
+          onChange={(e) => setCustomerId(e.target.value)}
+        />
+        <Select
+          id="event-group-dropdown"
+          name="groupId"
+          label="Group"
+          options={customer?.groups || []}
+          value={groupId}
+          onChange={(e) => setGroupId(e.target.value)}
         />
         <input
           type="text"
-          name="group"
-          onChange={(e) => setGroupName(e.target.value)}
-          placeholder="Group name"
-          value={groupName}
-          required
-        />
-        <input
-          type="text"
-          name="course"
-          onChange={(e) => setEventName(e.target.value)}
+          name="name"
+          onChange={setProp('name')}
           placeholder="Event name"
-          value={eventName}
+          value={data.name}
           required
         />
         <input
           type="date"
           name="date"
-          onChange={(e) => setEventDate(e.target.value)}
-          value={eventDate}
+          onChange={setProp('date')}
+          value={data.date}
           required
         />
         <input
           type="checkbox"
           name="fullDay"
-          checked={fullDay}
-          onChange={(e) => setFullDay(e.target.checked)}
+          checked={data.fullDay}
+          onChange={setProp('fullDay')}
         />
-        {!fullDay && (
+        {!data.fullDay && (
           <>
             <input
               type="time"
               name="startTime"
-              onChange={(e) => setStartTime(e.target.value)}
-              value={startTime}
+              onChange={setProp('startTime')}
+              value={data.startTime}
             />
             <input
               type="time"
               name="endTime"
-              onChange={(e) => setEndTime(e.target.value)}
-              value={endTime}
+              onChange={setProp('endTime')}
+              value={data.endTime}
             />
           </>
         )}
-        <button type="submit">new event</button>
+        <button type="submit">{btnTitle}</button>
+        {onCancel && (
+          <button type="button" onClick={onCancel}>
+            Cancel
+          </button>
+        )}
+        <button type="button" onClick={autoPopulate}>
+          autopop
+        </button>
       </form>
     </>
+  );
+}
+
+export default function FormEventContainer({ dir, event, onCancel }) {
+  const initialData = {
+    name: '',
+    date: '',
+    fullDay: true,
+    startTime: '',
+    endTime: '',
+  };
+  const [customer, setCustomer] = useState(null);
+  const [customerId, setCustomerId] = useState('');
+  const [groupId, setGroupId] = useState('');
+  const { data, setData, setProp } = useForm({ ...initialData });
+
+  const dispatch = useDispatch();
+  const customers = useSelector((state) => state.customers);
+
+  useEffect(() => {
+    if (event) {
+      const { id, customerId, groupId, ...rest } = event;
+      setCustomerId(customerId);
+      setData(rest);
+      setTimeout(() => setGroupId(groupId), 50);
+    }
+  }, [event]);
+
+
+  useEffect(() => {
+    console.log('customer change effect', customerId);
+    setGroupId('');
+    setCustomer(customers.find((c) => c.id === customerId));
+  }, [customerId]);
+
+  const onAddEvent = () =>
+    dispatch(createEvent(dir, { customerId, groupId, ...data }));
+
+  const onUpdateEvent = () =>
+    dispatch(updateEvent(dir, { id: event?.id, customerId, groupId, ...data }));
+
+
+  const onReset = () => {
+    onCancel();
+    setCustomerId('');
+    setGroupId('');
+    setData({ ...initialData });
+  };
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    const submitFn = event ? onUpdateEvent : onAddEvent;
+    // const submitFn = event ? (d) => console.warn('update N/A', d) : onAddEvent;
+    submitFn();
+    onReset();
+  };
+
+  return (
+    <FormEvent
+      formTitle={event ? `Edit event "${event.name}"` : 'New event'}
+      btnTitle={event ? 'Update' : 'Create'}
+      customers={customers}
+      data={data}
+      customerId={customerId}
+      setCustomerId={setCustomerId}
+      customer={customer}
+      groupId={groupId}
+      setGroupId={setGroupId}
+      setProp={setProp}
+      onSubmit={onSubmit}
+      onCancel={onReset}
+    />
   );
 }

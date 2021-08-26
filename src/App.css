@@ -17,7 +17,9 @@ pre code {
   color: #999;
 }
 
-input, select, button {
+input,
+select,
+button {
   background: #444;
   border: 1px solid #555;
   padding: 0.125em 0.25em;
