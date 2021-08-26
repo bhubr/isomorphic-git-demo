@@ -4,26 +4,32 @@ import React, { useState, useEffect } from 'react';
 import FormEvent from './FormEvent';
 import FormCustomer from './FormCustomer';
 import { cloneRepo, addCommitPush } from './helpers/git';
+import { readFile, writeFile } from './helpers/fs';
 
-export default function Dashboard({ ghAccessToken, onLogout }) {
+export default function Dashboard({ ghAccessToken, user, onLogout }) {
   const [dir] = useState('/agenda-wip4');
   const [dirContent, setDirContent] = useState([]);
+  const [metadata, setMetadata] = useState(null);
 
   useEffect(() => {
     (async () => {
-      console.log('effect', ghAccessToken);
       await cloneRepo({
         url: 'https://github.com/bhubr/git-agenda',
         dir,
         accessToken: ghAccessToken,
-        onSuccess: setDirContent,
+        onSuccess: async (files) => {
+          setDirContent(files);
+          const metaJSON = await readFile(dir, 'metadata.json');
+          const meta = JSON.parse(metaJSON);
+          setMetadata(meta);
+        },
         onFailure: (err) => console.error('clone error', err),
       });
     })();
   }, [dir, ghAccessToken]);
 
   const showFileContent = async (file) => {
-    const content = await window.pfs.readFile(`${dir}/${file}`, 'utf8');
+    const content = await readFile(dir, file);
     console.log(content);
   };
 
@@ -52,9 +58,36 @@ export default function Dashboard({ ghAccessToken, onLogout }) {
     console.log(line);
   };
 
-  const onAddCustomer = async ({ customerName }) => {
-    console.log(customerName);
+  const genId = () => {
+    const array = new Uint32Array(2);
+    window.crypto.getRandomValues(array);
+
+    return array.reduce((str, n) => str + n.toString(16), '');
   };
+
+  const onAddCustomer = async ({ customerName }) => {
+    const customers = metadata.customers ? [...metadata.customers] : [];
+    const newCustomer = {
+      id: genId(),
+      name: customerName,
+    };
+    const nextCustomers = [...customers, newCustomer];
+    const nextMeta = { ...metadata, customers: nextCustomers };
+    const nextMetaJSON = JSON.stringify(nextMeta, null, 2);
+
+    await writeFile(dir, 'metadata.json', nextMetaJSON);
+
+    await addCommitPush({
+      dir,
+      filepath: 'metadata.json',
+      accessToken: ghAccessToken,
+      message: `[customer] create customer "${customerName}"`,
+      author: user,
+    });
+
+    setMetadata(nextMeta);
+  };
+
   return (
     <main>
       <nav>
@@ -71,6 +104,10 @@ export default function Dashboard({ ghAccessToken, onLogout }) {
           </li>
         ))}
       </ul>
+
+      <pre>
+        <code>{JSON.stringify(metadata, null, 2)}</code>
+      </pre>
 
       <FormCustomer onSubmit={onAddCustomer} />
       <FormEvent onSubmit={onAddEvent} />

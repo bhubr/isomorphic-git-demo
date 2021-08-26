@@ -1,20 +1,18 @@
-import React, { useState } from 'react';
-import { sendCode } from './helpers/api';
+import React from 'react';
+import { sendCode, getUser } from './helpers/api';
+import useStateStorage from './hooks/useStateStorage';
 
 export default function withAuth(WrappedComponent) {
   return () => {
-    const storedGhToken = localStorage.getItem('gh:token');
-    const [ghAccessToken, setGhAccessToken] = useState(storedGhToken || '');
+    const [ghAccessToken, setGhAccessToken] = useStateStorage('gh:token', '');
+    const [user, setUser] = useStateStorage('gh:user', null);
 
-    const setAndStoreToken = (token) => {
-      localStorage.setItem('gh:token', token);
+    const onCodeSuccess = async (response) => {
+      const { access_token: token } = await sendCode(response.code);
       setGhAccessToken(token);
+      const { name, email } = await getUser(token);
+      setUser({ name, email });
     };
-
-    const onCodeSuccess = (response) =>
-      sendCode(response.code).then(({ access_token: token }) =>
-        setAndStoreToken(token),
-      );
     const onCodeFailure = (response) => console.error(response);
 
     const onLogout = () => {
@@ -25,6 +23,7 @@ export default function withAuth(WrappedComponent) {
     return (
       <WrappedComponent
         ghAccessToken={ghAccessToken}
+        user={user}
         onLogout={onLogout}
         onCodeSuccess={onCodeSuccess}
         onCodeFailure={onCodeFailure}

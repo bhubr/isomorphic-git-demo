@@ -62,7 +62,13 @@ export const cloneRepo = async ({
 /**
  * Add, commit & push a file
  */
-export const addCommitPush = async ({ dir, filepath, accessToken }) => {
+export const addCommitPush = async ({
+  dir,
+  filepath,
+  accessToken,
+  message,
+  author,
+}) => {
   await git.add({ fs, dir, filepath });
   // const status = await git.status({ fs, dir, filepath });
   // console.log(status);
@@ -70,11 +76,8 @@ export const addCommitPush = async ({ dir, filepath, accessToken }) => {
   await git.commit({
     fs: window.fs,
     dir,
-    message: `Create ${filepath}`,
-    author: {
-      name: 'Mr. Test',
-      email: 'mrtest@example.com',
-    },
+    message,
+    author,
   });
 
   await git.push({

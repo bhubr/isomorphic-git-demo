@@ -4,7 +4,9 @@ import { clientId, authorizationUrl, redirectUri, scope } from './settings';
 import Dashboard from './Dashboard';
 import withAuth from './withAuth';
 
-function App({ ghAccessToken, onLogout, onCodeSuccess, onCodeFailure }) {
+import './App.css';
+
+function App({ ghAccessToken, user, onLogout, onCodeSuccess, onCodeFailure }) {
   let content;
 
   if (!ghAccessToken) {
@@ -20,7 +22,13 @@ function App({ ghAccessToken, onLogout, onCodeSuccess, onCodeFailure }) {
       />
     );
   } else {
-    content = <Dashboard onLogout={onLogout} ghAccessToken={ghAccessToken} />;
+    content = (
+      <Dashboard
+        onLogout={onLogout}
+        user={user}
+        ghAccessToken={ghAccessToken}
+      />
+    );
   }
 
   return (

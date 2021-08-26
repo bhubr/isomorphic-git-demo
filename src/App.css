@@ -2,3 +2,12 @@ code {
   background: #eee;
   color: #d04;
 }
+
+pre {
+  padding: 0.5em;
+}
+
+pre code {
+  background: #ddd;
+  color: #333;
+}
