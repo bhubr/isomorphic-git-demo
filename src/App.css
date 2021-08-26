@@ -31,3 +31,9 @@ button:disabled {
   background: #3a3a3a;
   color: #5a5a5a;
 }
+
+label,
+input,
+select {
+  display: block;
+}

@@ -88,6 +88,13 @@ function FormEvent({
           required
         />
         <input
+          type="text"
+          name="name"
+          onChange={setProp('code')}
+          placeholder="Event code"
+          value={data.code}
+        />
+        <input
           type="date"
           name="date"
           onChange={setProp('date')}
@@ -132,6 +139,7 @@ function FormEvent({
 
 export default function FormEventContainer({ dir, event, onCancel }) {
   const initialData = {
+    code: '',
     name: '',
     date: '',
     fullDay: true,

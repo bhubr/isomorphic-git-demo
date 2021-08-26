@@ -38,7 +38,7 @@ const eventsDeleteAction = (event) => ({
 
 const writeEvents = async ({ dir, auth, events, message }) => {
   const eventsCSV = Papa.unparse(events, {
-    columns: ['summary', 'id','customerId','groupId','name','date','fullDay','startTime','endTime']
+    columns: ['date','startTime','endTime','summary','name','code','id','fullDay','customerId','groupId']
   });
 
   console.log(dir, auth, events, message, eventsCSV)
