@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { createEvent } from './store/actions/events';
 
 const useForm = (initialData) => {
   const [data, setData] = useState(initialData);
@@ -34,7 +35,7 @@ const Select = ({ id, name, label, options, value, onChange }) => (
 );
 
 function FormEvent({
-  onSubmit: onSubmitFn,
+  onSubmit,
   customers,
   data,
   setProp,
@@ -44,11 +45,6 @@ function FormEvent({
   groupId,
   setGroupId,
 }) {
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    const payload = { ...data, customerId, groupId };
-    onSubmitFn(payload);
-  };
   return (
     <>
       <h3>New event</h3>
@@ -71,17 +67,17 @@ function FormEvent({
         />
         <input
           type="text"
-          name="course"
-          onChange={setProp('eventName')}
+          name="name"
+          onChange={setProp('name')}
           placeholder="Event name"
-          value={data.eventName}
+          value={data.name}
           required
         />
         <input
           type="date"
           name="date"
-          onChange={setProp('eventDate')}
-          value={data.eventDate}
+          onChange={setProp('date')}
+          value={data.date}
           required
         />
         <input
@@ -113,16 +109,17 @@ function FormEvent({
 }
 
 export default function FormEventContainer({ dir, event, onCancel }) {
-  const [customer, setCustomer] = useState(null);
-  const [customerId, setCustomerId] = useState('');
-  const [groupId, setGroupId] = useState('');
-  const { data, setProp } = useForm({
-    eventName: '',
-    eventDate: '',
+  const initialData = {
+    name: '',
+    date: '',
     fullDay: true,
     startTime: '',
     endTime: '',
-  });
+  };
+  const [customer, setCustomer] = useState(null);
+  const [customerId, setCustomerId] = useState('');
+  const [groupId, setGroupId] = useState('');
+  const { data, setData, setProp } = useForm({...initialData});
 
   const dispatch = useDispatch();
   const customers = useSelector((state) => state.customers);
@@ -131,6 +128,23 @@ export default function FormEventContainer({ dir, event, onCancel }) {
     setGroupId('');
     setCustomer(customers.find((c) => c.id === customerId));
   }, [customerId]);
+
+  const onAddEvent = () => dispatch(createEvent(dir, { customerId, groupId, ...data }));
+
+  const onReset = () => {
+    onCancel();
+    setCustomerId('');
+    setGroupId('');
+    setData({...initialData});
+  };
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    // const submitFn = event ? onUpdateEvent : onAddEvent;
+    const submitFn = event ? d => console.warn('update N/A', d) : onAddEvent;
+    submitFn();
+    onReset();
+  };
 
   return (
     <FormEvent
@@ -142,6 +156,7 @@ export default function FormEventContainer({ dir, event, onCancel }) {
       groupId={groupId}
       setGroupId={setGroupId}
       setProp={setProp}
+      onSubmit={onSubmit}
     />
   );
 }
