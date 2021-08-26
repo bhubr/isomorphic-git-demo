@@ -3,8 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import FormEvent from './FormEvent';
 import FormCustomer from './FormCustomer';
+import FormGroup from './FormGroup';
 import { cloneRepo, addCommitPush } from './helpers/git';
 import { readFile, writeFile } from './helpers/fs';
+import { genId } from './helpers/utils';
 
 export default function Dashboard({ ghAccessToken, user, onLogout }) {
   const [dir] = useState('/agenda-wip4');
@@ -58,11 +60,30 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
     console.log(line);
   };
 
-  const genId = () => {
-    const array = new Uint32Array(2);
-    window.crypto.getRandomValues(array);
+  const onAddGroup = async ({ customerId, groupName }) => {
+    const customer = metadata.customers.find(c => c.id === customerId);
+    const groups = metadata.groups ? [...metadata.groups] : [];
 
-    return array.reduce((str, n) => str + n.toString(16), '');
+    const newGroup = {
+      id: genId(),
+      customerId: customer.id,
+      name: groupName,
+    };
+    const nextGroups = [...groups, newGroup];
+    const nextMeta = { ...metadata, groups: nextGroups };
+    const nextMetaJSON = JSON.stringify(nextMeta, null, 2);
+    console.log(nextMeta)
+    // await writeFile(dir, 'metadata.json', nextMetaJSON);
+
+    // await addCommitPush({
+    //   dir,
+    //   filepath: 'metadata.json',
+    //   accessToken: ghAccessToken,
+    //   message: `[customer] create customer "${customerName}"`,
+    //   author: user,
+    // });
+
+    setMetadata(nextMeta);
   };
 
   const onAddCustomer = async ({ customerName }) => {
@@ -91,7 +112,8 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
   return (
     <main>
       <nav>
-        <span>{ghAccessToken}</span>
+        <span>Logged in as {user.name}</span>
+        {' '}
         <button type="button" onClick={onLogout}>
           Logout
         </button>
@@ -110,6 +132,7 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
       </pre>
 
       <FormCustomer onSubmit={onAddCustomer} />
+      <FormGroup customers={metadata?.customers || []} onSubmit={onAddGroup} />
       <FormEvent onSubmit={onAddEvent} />
     </main>
   );

@@ -33,10 +33,6 @@ function App({ ghAccessToken, user, onLogout, onCodeSuccess, onCodeFailure }) {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <h1>Isomorphic Git Demo</h1>
-      </header>
-
       {content}
     </div>
   );

@@ -22,4 +22,10 @@ input, select, button {
   border: 1px solid #555;
   padding: 0.125em 0.25em;
   border-radius: 2px;
+  color: #888;
+}
+
+button:disabled {
+  background: #3a3a3a;
+  color: #5a5a5a;
 }
