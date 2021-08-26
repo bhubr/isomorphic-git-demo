@@ -1,17 +1,21 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import FormEvent from './FormEvent';
 import FormCustomer from './FormCustomer';
 import FormGroup from './FormGroup';
 import { cloneRepo, addCommitPush } from './helpers/git';
 import { readFile, writeFile } from './helpers/fs';
 import { genId } from './helpers/utils';
+import { readMetadata, createCustomer } from './store/actions/metadata';
 
 export default function Dashboard({ ghAccessToken, user, onLogout }) {
   const [dir] = useState('/agenda-wip4');
   const [dirContent, setDirContent] = useState([]);
   const [metadata, setMetadata] = useState(null);
+  const customers = useSelector(state => state.customers);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     (async () => {
@@ -21,9 +25,8 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
         accessToken: ghAccessToken,
         onSuccess: async (files) => {
           setDirContent(files);
-          const metaJSON = await readFile(dir, 'metadata.json');
-          const meta = JSON.parse(metaJSON);
-          setMetadata(meta);
+          console.log('firing readMetadata')
+          dispatch(readMetadata(dir));
         },
         onFailure: (err) => console.error('clone error', err),
       });
@@ -87,26 +90,7 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
   };
 
   const onAddCustomer = async ({ customerName }) => {
-    const customers = metadata.customers ? [...metadata.customers] : [];
-    const newCustomer = {
-      id: genId(),
-      name: customerName,
-    };
-    const nextCustomers = [...customers, newCustomer];
-    const nextMeta = { ...metadata, customers: nextCustomers };
-    const nextMetaJSON = JSON.stringify(nextMeta, null, 2);
-
-    await writeFile(dir, 'metadata.json', nextMetaJSON);
-
-    await addCommitPush({
-      dir,
-      filepath: 'metadata.json',
-      accessToken: ghAccessToken,
-      message: `[customer] create customer "${customerName}"`,
-      author: user,
-    });
-
-    setMetadata(nextMeta);
+    dispatch(createCustomer(dir, customerName));
   };
 
   return (
@@ -119,10 +103,20 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
         </button>
       </nav>
 
+      <h3>Repo content</h3>
       <ul>
         {dirContent.map((item) => (
           <li key={item} onClick={() => showFileContent(item)}>
             {item}
+          </li>
+        ))}
+      </ul>
+
+      <h3>Customers</h3>
+      <ul>
+        {customers.map((item) => (
+          <li key={item.id}>
+            {item.name}
           </li>
         ))}
       </ul>
