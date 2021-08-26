@@ -8,7 +8,7 @@ import FormGroup from './FormGroup';
 import { cloneRepo, addCommitPush } from './helpers/git';
 import { readFile, writeFile } from './helpers/fs';
 import { genId } from './helpers/utils';
-import { readMetadata, createCustomer } from './store/actions/metadata';
+import { readMetadata, createCustomer, deleteCustomer } from './store/actions/metadata';
 
 export default function Dashboard({ ghAccessToken, user, onLogout }) {
   const [dir] = useState('/agenda-wip4');
@@ -89,9 +89,9 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
     setMetadata(nextMeta);
   };
 
-  const onAddCustomer = async ({ customerName }) => {
-    dispatch(createCustomer(dir, customerName));
-  };
+  const onAddCustomer = ({ customerName }) => dispatch(createCustomer(dir, customerName));
+
+  const onDeleteCustomer = (customerId) => dispatch(deleteCustomer(dir, customerId));
 
   return (
     <main>
@@ -116,7 +116,7 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
       <ul>
         {customers.map((item) => (
           <li key={item.id}>
-            {item.name}
+            {item.name} <button type="button" onClick={() => onDeleteCustomer(item.id)}>x</button>
           </li>
         ))}
       </ul>

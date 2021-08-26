@@ -5,6 +5,7 @@ import { genId } from '../../helpers/utils';
 export const METADATA_POPULATE = 'METADATA_POPULATE';
 export const CUSTOMERS_POPULATE = 'CUSTOMERS_POPULATE';
 export const CUSTOMERS_CREATE_SUCCESS = 'CUSTOMERS_CREATE_SUCCESS';
+export const CUSTOMERS_DELETE_SUCCESS = 'CUSTOMERS_DELETE_SUCCESS';
 
 export const metadataPopulateAction = (metadata) => ({
   type: METADATA_POPULATE,
@@ -21,6 +22,11 @@ export const customersCreateAction = (customer) => ({
   customer,
 })
 
+export const customersDeleteAction = (customer) => ({
+  type: CUSTOMERS_DELETE_SUCCESS,
+  customer,
+})
+
 export const readMetadata = (dir) => async (dispatch) => {
   const metaJSON = await readFile(dir, 'metadata.json');
   const meta = JSON.parse(metaJSON);
@@ -28,27 +34,50 @@ export const readMetadata = (dir) => async (dispatch) => {
   dispatch(customersPopulateAction(meta.customers));
 }
 
+const writeMetadata = async ({ dir, auth, meta, message }) => {
+  const metaJSON = JSON.stringify(meta, null, 2);
+
+  await writeFile(dir, 'metadata.json', metaJSON);
+
+  await addCommitPush({
+    dir,
+    filepath: 'metadata.json',
+    accessToken: auth.token,
+    message,
+    author: auth.user,
+  });
+
+}
+
 export const createCustomer = (dir, name) => async (dispatch, getState) => {
   const { customers, metadata, auth } = getState();
-    const newCustomer = {
-      id: genId(),
-      name,
-    };
-    const nextCustomers = [...customers, newCustomer];
-    const nextMeta = { ...metadata, customers: nextCustomers };
-    const nextMetaJSON = JSON.stringify(nextMeta, null, 2);
+  const newCustomer = {
+    id: genId(),
+    name,
+  };
+  const nextCustomers = [...customers, newCustomer];
+  const nextMeta = { ...metadata, customers: nextCustomers };
 
-    await writeFile(dir, 'metadata.json', nextMetaJSON);
+  await writeMetadata({
+    dir, auth, meta: nextMeta, message: `[customer] create customer "${name}"`
+  });
 
-    await addCommitPush({
-      dir,
-      filepath: 'metadata.json',
-      accessToken: auth.token,
-      message: `[customer] create customer "${name}"`,
-      author: auth.user,
-    });
+  dispatch(customersCreateAction(newCustomer));
+  dispatch(metadataPopulateAction(nextMeta));
+  console.log(getState());
+}
 
-    dispatch(customersCreateAction(newCustomer));
-    dispatch(metadataPopulateAction(nextMeta));
-    console.log(getState());
+export const deleteCustomer = (dir, customerId) => async (dispatch, getState) => {
+  const { customers, metadata, auth } = getState();
+  const deletedCustomer = customers.find(c => c.id === customerId);
+  const nextCustomers = customers.filter(c => c.id !== customerId);
+  const nextMeta = { ...metadata, customers: nextCustomers };
+
+  await writeMetadata({
+    dir, auth, meta: nextMeta, message: `[customer] delete customer "${deletedCustomer.name}"`
+  });
+
+  dispatch(customersDeleteAction(deletedCustomer));
+  dispatch(metadataPopulateAction(nextMeta));
+  console.log(getState());
 }
