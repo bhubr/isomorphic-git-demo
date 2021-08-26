@@ -1,6 +1,12 @@
+body {
+  background: #333;
+  color: #888;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
 code {
-  background: #eee;
-  color: #d04;
+  background: #444;
+  color: #934;
 }
 
 pre {
@@ -8,6 +14,12 @@ pre {
 }
 
 pre code {
-  background: #ddd;
-  color: #333;
+  color: #999;
+}
+
+input, select, button {
+  background: #444;
+  border: 1px solid #555;
+  padding: 0.125em 0.25em;
+  border-radius: 2px;
 }
