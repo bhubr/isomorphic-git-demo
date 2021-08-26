@@ -31,7 +31,9 @@ const eventsUpdateAction = (event) => ({
 });
 
 const writeEvents = async ({ dir, auth, events, message }) => {
-  const eventsCSV = Papa.unparse(events);
+  const eventsCSV = Papa.unparse(events, {
+    columns: ['summary', 'id','customerId','groupId','name','date','fullDay','startTime','endTime']
+  });
 
   console.log(dir, auth, events, message, eventsCSV)
 
@@ -45,13 +47,19 @@ const writeEvents = async ({ dir, auth, events, message }) => {
   });
 };
 
+const makeSummary = (data, customers) => {
+  const { customerId, groupId } = data;
+  const cust = customers.find(c => c.id === customerId);
+  const grp = cust.groups.find(g => g.id === groupId);
+  return `${cust.name} ${grp.name} ${data.name}`;
+}
+
 export const createEvent = (dir, data) => async (dispatch, getState) => {
   const { customers, events, auth } = getState();
   const newEvent = {
     id: generateId(TYPE_EVENT),
     ...data,
   };
-  console.log(newEvent);
   const nextEvents = [...events, newEvent];
 
   const customer = customers.find(c => c.id === newEvent.customerId);
@@ -60,7 +68,7 @@ export const createEvent = (dir, data) => async (dispatch, getState) => {
   await writeEvents({
     dir,
     auth,
-    events: nextEvents,
+    events: nextEvents.map(evt => ({ ...evt, summary: makeSummary(evt, customers )})),
     message: `[event] create event "${newEvent.name}" (${customer.name}/${group.name})`
   })
 
@@ -81,7 +89,7 @@ export const updateEvent = (dir, { id, ...rest }) => async (dispatch, getState) 
   await writeEvents({
     dir,
     auth,
-    events: nextEvents,
+    events: nextEvents.map(evt => ({ ...evt, summary: makeSummary(evt, customers )})),
     message: `[event] update event "${updatedEvent.name}" (${customer.name}/${group.name})`
   })
 
