@@ -6,10 +6,10 @@ import withAuth from './withAuth';
 
 import './App.css';
 
-function App({ ghAccessToken, user, onLogout, onCodeSuccess, onCodeFailure }) {
+function App({ auth, onLogout, onCodeSuccess, onCodeFailure }) {
   let content;
 
-  if (!ghAccessToken) {
+  if (!auth) {
     content = (
       <OAuth2Login
         authorizationUrl={authorizationUrl}
@@ -25,8 +25,8 @@ function App({ ghAccessToken, user, onLogout, onCodeSuccess, onCodeFailure }) {
     content = (
       <Dashboard
         onLogout={onLogout}
-        user={user}
-        ghAccessToken={ghAccessToken}
+        user={auth.user}
+        ghAccessToken={auth.token}
       />
     );
   }
