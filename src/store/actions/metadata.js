@@ -1,6 +1,7 @@
 import { readFile, writeFile } from '../../helpers/fs';
 import { addCommitPush } from '../../helpers/git';
-import { genId } from '../../helpers/utils';
+import { generateId } from '../../helpers/utils';
+import { TYPE_CUSTOMER, TYPE_GROUP, TYPE_EVENT } from '../../constants';
 
 export const METADATA_POPULATE = 'METADATA_POPULATE';
 export const CUSTOMERS_POPULATE = 'CUSTOMERS_POPULATE';
@@ -58,7 +59,7 @@ const writeMetadata = async ({ dir, auth, meta, message }) => {
 export const createCustomer = (dir, { name }) => async (dispatch, getState) => {
   const { customers, metadata, auth } = getState();
   const newCustomer = {
-    id: genId(),
+    id: generateId(TYPE_CUSTOMER),
     name,
   };
   const nextCustomers = [...customers, newCustomer];

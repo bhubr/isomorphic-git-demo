@@ -7,7 +7,7 @@ import FormCustomer from './FormCustomer';
 import FormGroup from './FormGroup';
 import { cloneRepo, addCommitPush } from './helpers/git';
 import { readFile, writeFile } from './helpers/fs';
-import { genId } from './helpers/utils';
+import { generateId } from './helpers/utils';
 import { readMetadata, createCustomer, deleteCustomer } from './store/actions/metadata';
 
 export default function Dashboard({ ghAccessToken, user, onLogout }) {
@@ -70,7 +70,7 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
     const groups = metadata.groups ? [...metadata.groups] : [];
 
     const newGroup = {
-      id: genId(),
+      id: generateId(),
       customerId: customer.id,
       name: groupName,
     };
