@@ -1,6 +1,6 @@
-import { AUTH_LOGIN_SUCCESS, AUTH_LOGOUT } from '../actions/auth';
+import { AUTH_LOGIN_SUCCESS, AUTH_LOGOUT, AUTH_STORAGE_KEY } from '../actions/auth';
 
-const storedState = localStorage.getItem('gh:auth');
+const storedState = localStorage.getItem(AUTH_STORAGE_KEY);
 const initialState = storedState ? JSON.parse(storedState) : null;
 
 export default function authReducer(state = initialState, action) {
