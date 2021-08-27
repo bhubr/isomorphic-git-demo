@@ -61,6 +61,7 @@ const writeEvents = async ({ dir, auth, events, message }) => {
       'customerId',
       'groupId',
     ],
+    newline: "\n",
   });
 
   await writeFile(dir, 'calendar.csv', `${eventsCSV}\n`);
