@@ -1,24 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { createEvent, updateEvent } from './store/actions/events';
-
-const useForm = (initialData) => {
-  const [data, setData] = useState(initialData);
-
-  const setProp =
-    (k) =>
-    ({ target }) =>
-      setData((prevData) => ({
-        ...prevData,
-        [k]: target.type === 'checkbox' ? target.checked : target.value,
-      }));
-
-  return {
-    data,
-    setData,
-    setProp,
-  };
-};
+import useForm from './hooks/useForm';
 
 const Select = ({ id, name, label, options, value, onChange }) => (
   <>

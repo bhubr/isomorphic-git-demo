@@ -2,11 +2,26 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import Modal from 'react-modal';
 import FormEvent from './FormEvent';
+import FormEventClone from './FormEventClone';
 import { deleteEvent } from './store/actions/events';
+
+const customModalStyles = {
+  overlay: {
+    backgroundColor: 'black'
+  },
+  content: {
+    backgroundColor: '#333',
+    color: '#ddd'
+  }
+}
+
+const stripEventId = ({ id, ...event }) => event
 
 export default function Dashboard() {
   const [editingEvent, setEditingEvent] = useState(null);
+  const [cloningEvent, setCloningEvent] = useState(null);
 
   const { repo: { dir }, events } = useSelector((state) => ({
     repo: state.repo,
@@ -27,6 +42,9 @@ export default function Dashboard() {
             <button type="button" onClick={() => setEditingEvent(item)}>
               edit
             </button>{' '}
+            <button type="button" onClick={() => setCloningEvent(stripEventId(item))}>
+              clone
+            </button>{' '}
             <button type="button" onClick={() => onDeleteEvent(item.id)}>
               x
             </button>
@@ -39,6 +57,15 @@ export default function Dashboard() {
         event={editingEvent}
         onCancel={() => setEditingEvent(null)}
       />
+      <Modal
+        isOpen={!!cloningEvent}
+        contentLabel={cloningEvent ? `Clone ${cloningEvent.name}` : ''}
+        style={customModalStyles}
+      >
+        <h2>Clone event</h2>
+        <button type="button" onClick={() => setCloningEvent(null)}>close</button>
+        {cloningEvent && <FormEventClone dir={dir} event={cloningEvent} onCancel={() => setCloningEvent(null)} />}
+      </Modal>
     </main>
   );
 }
