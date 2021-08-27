@@ -60,6 +60,13 @@ export const cloneRepo = async ({
 };
 
 /**
+ * Add only
+ */
+export const add = async ({ dir, filepath }) => {
+  await git.add({ fs, dir, filepath });
+};
+
+/**
  * Add, commit & push a file
  */
 export const addCommitPush = async ({

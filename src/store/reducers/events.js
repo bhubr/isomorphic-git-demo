@@ -4,7 +4,7 @@ import {
   EVENTS_DELETE_SUCCESS,
   EVENTS_POPULATE,
 } from '../actions/events';
-import { sortEventByDateFn } from '../../helpers/utils';
+import { sortEventByDateFn } from '../../helpers/events';
 
 export default function eventsReducer(state = [], action) {
   switch (action.type) {

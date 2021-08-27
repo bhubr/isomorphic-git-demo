@@ -120,7 +120,7 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
       <ul>
         {(events || []).map((item) => (
           <li key={item.id}>
-            {item.date} {item.startTime}-{item.endTime} {item.name}{' '}
+            {item.date} {item.startTime}-{item.endTime} {item.summary}{' '}
             <button type="button" onClick={() => setEditingEvent(item)}>
               edit
             </button>{' '}
