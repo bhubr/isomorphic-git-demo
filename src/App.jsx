@@ -4,6 +4,7 @@ import OAuth2Login from 'react-simple-oauth2-login';
 import { clientId, authorizationUrl, redirectUri, scope } from './settings';
 import LayoutRoute from './LayoutRoute';
 import Dashboard from './Dashboard';
+import ManageCustomersGroups from './ManageCustomersGroups';
 import withAuth from './withAuth';
 
 import './App.css';
@@ -41,6 +42,13 @@ function App({ auth, onLogout, onCodeSuccess, onCodeFailure }) {
           exact
           path="/"
           component={Dashboard}
+        />
+        <LayoutRoute
+          user={auth.user}
+          ghAccessToken={auth.token}
+          onLogout={onLogout}
+          path="/manage-customers-groups"
+          component={ManageCustomersGroups}
         />
       </Switch>
     );

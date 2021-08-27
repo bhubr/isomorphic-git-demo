@@ -37,3 +37,41 @@ input,
 select {
   display: block;
 }
+
+a {
+  color: #67a080;
+}
+
+nav {
+  background: #222; 
+  padding: 0.5em;
+  display: flex;
+  justify-content: space-between;
+}
+
+nav ul {
+  padding: 0;
+  display: flex;
+}
+
+nav ul li {
+  list-style-type: none;
+}
+
+nav ul li a {
+  padding: 0 0.5em;
+}
+
+.nav-logout {
+  display: flex;
+  align-items: center;
+}
+
+.nav-logout button {
+  margin-left: 1em;
+}
+
+main {
+  max-width: 1024px;
+  margin: 1em auto 0 auto;
+}
