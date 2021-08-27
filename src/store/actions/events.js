@@ -28,7 +28,6 @@ export const readEvents = (dir) => async (dispatch) => {
     ...evt,
     fullDay: fullDay === 'true',
   }));
-  console.log('csv parse', calendarCsv, events, rest);
   dispatch(eventsPopulateAction(sanitizedEvents));
 };
 
@@ -61,7 +60,7 @@ const writeEvents = async ({ dir, auth, events, message }) => {
       'customerId',
       'groupId',
     ],
-    newline: "\n",
+    newline: '\n',
   });
 
   await writeFile(dir, 'calendar.csv', `${eventsCSV}\n`);

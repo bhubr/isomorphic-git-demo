@@ -2,7 +2,7 @@
 // const url = 'https://github.com/bhubr/git-agenda';
 
 const dir = '/git-calendar';
-const url = 'https://github.com/bhubr/git-calendar'
+const url = 'https://github.com/bhubr/git-calendar';
 
 const initialState = {
   dir,

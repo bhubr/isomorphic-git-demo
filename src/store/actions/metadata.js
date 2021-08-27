@@ -92,7 +92,6 @@ export const createCustomer =
 
     dispatch(customersCreateAction(newCustomer));
     dispatch(metadataPopulateAction(nextMeta));
-    console.log(getState());
   };
 
 /**
@@ -122,7 +121,6 @@ export const updateCustomer =
 
     dispatch(customersUpdateAction(updatedCustomer));
     dispatch(metadataPopulateAction(nextMeta));
-    console.log(getState());
   };
 
 /**
@@ -148,7 +146,6 @@ export const deleteCustomer =
 
     dispatch(customersDeleteAction(deletedCustomer));
     dispatch(metadataPopulateAction(nextMeta));
-    console.log(getState());
   };
 
 const groupsCreateAction = (group) => ({
@@ -196,7 +193,6 @@ export const createGroup =
 
     dispatch(groupsCreateAction(newGroup));
     dispatch(metadataPopulateAction(nextMeta));
-    console.log(getState());
   };
 
 /**
@@ -230,7 +226,6 @@ export const updateGroup =
 
     dispatch(groupsUpdateAction(updatedGroup, existingGroup));
     dispatch(metadataPopulateAction(nextMeta));
-    console.log(getState());
   };
 
 /**
@@ -256,5 +251,4 @@ export const deleteGroup = (dir, groupId) => async (dispatch, getState) => {
 
   dispatch(groupsDeleteAction(deletedGroup));
   dispatch(metadataPopulateAction(nextMeta));
-  console.log(getState());
 };

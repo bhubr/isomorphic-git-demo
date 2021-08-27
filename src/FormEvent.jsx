@@ -1,21 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { createEvent, updateEvent } from './store/actions/events';
+import Select from './components/Select';
 import useForm from './hooks/useForm';
-
-const Select = ({ id, name, label, options, value, onChange }) => (
-  <>
-    <label htmlFor={id}>{label}</label>
-    <select id={id} name={name} onChange={onChange} value={value} required>
-      <option value="">&mdash;</option>
-      {options.map((o) => (
-        <option key={o.id} value={o.id}>
-          {o.name}
-        </option>
-      ))}
-    </select>
-  </>
-);
 
 function FormEvent({
   formTitle,
