@@ -16,12 +16,11 @@ import {
 import { readEvents, deleteEvent } from './store/actions/events';
 
 export default function Dashboard({ ghAccessToken, user, onLogout }) {
-  const [[dir, url]] = useState([
-    '/agenda-wip4',
-    'https://github.com/bhubr/git-agenda',
-  ]);
-  console.log(dir, url);
-  // const [[dir, url]]  = useState(['/git-calendar', 'https://github.com/bhubr/git-calendar']);
+  // const [[dir, url]] = useState([
+  //   '/agenda-wip4',
+  //   'https://github.com/bhubr/git-agenda',
+  // ]);
+  const [[dir, url]]  = useState(['/git-calendar', 'https://github.com/bhubr/git-calendar']);
   const [dirContent, setDirContent] = useState([]);
   const [editingCustomer, setEditingCustomer] = useState(null);
   const [editingGroup, setEditingGroup] = useState(null);
