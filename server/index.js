@@ -17,7 +17,6 @@ app.post('/github/token', (req, res) => {
   const { code } = req.body;
   const { tokenUrl, clientId, clientSecret, redirectUri } = oauth;
 
-  console.log(code, tokenUrl, clientId, clientSecret, redirectUri);
   // GitHub wants everything in an url-encoded body
   const payload = qs.stringify({
     code,
