@@ -1,10 +1,14 @@
 import React from 'react';
+import { Switch } from 'react-router-dom';
 import OAuth2Login from 'react-simple-oauth2-login';
 import { clientId, authorizationUrl, redirectUri, scope } from './settings';
+import LayoutRoute from './LayoutRoute';
 import Dashboard from './Dashboard';
+import ManageCustomersGroups from './ManageCustomersGroups';
 import withAuth from './withAuth';
 
 import './App.css';
+
 
 function App({ auth, onLogout, onCodeSuccess, onCodeFailure }) {
   let content;
@@ -22,12 +26,31 @@ function App({ auth, onLogout, onCodeSuccess, onCodeFailure }) {
       />
     );
   } else {
+    // content = (
+    //   <Dashboard
+    //     onLogout={onLogout}
+    //     user={auth.user}
+    //     ghAccessToken={auth.token}
+    //   />
+    // );
     content = (
-      <Dashboard
-        onLogout={onLogout}
-        user={auth.user}
-        ghAccessToken={auth.token}
-      />
+      <Switch>
+        <LayoutRoute
+          user={auth.user}
+          ghAccessToken={auth.token}
+          onLogout={onLogout}
+          exact
+          path="/"
+          component={Dashboard}
+        />
+        <LayoutRoute
+          user={auth.user}
+          ghAccessToken={auth.token}
+          onLogout={onLogout}
+          path="/manage-customers-groups"
+          component={ManageCustomersGroups}
+        />
+      </Switch>
     );
   }
 
