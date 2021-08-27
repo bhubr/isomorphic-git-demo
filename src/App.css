@@ -75,3 +75,12 @@ main {
   max-width: 1024px;
   margin: 1em auto 0 auto;
 }
+
+.rbc-calendar { 
+  margin-top: 1em;
+  height: 800px; 
+}
+
+.rbc-calendar button { 
+  color: #999;
+}
