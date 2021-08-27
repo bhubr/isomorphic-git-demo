@@ -16,9 +16,13 @@ import {
 import { readEvents, deleteEvent } from './store/actions/events';
 
 export default function Dashboard({ ghAccessToken, user, onLogout }) {
-  const [dir] = useState('/agenda-wip4');
+  const [[dir, url]] = useState([
+    '/agenda-wip4',
+    'https://github.com/bhubr/git-agenda',
+  ]);
+  console.log(dir, url);
+  // const [[dir, url]]  = useState(['/git-calendar', 'https://github.com/bhubr/git-calendar']);
   const [dirContent, setDirContent] = useState([]);
-  const [metadata, setMetadata] = useState(null);
   const [editingCustomer, setEditingCustomer] = useState(null);
   const [editingGroup, setEditingGroup] = useState(null);
   const [editingEvent, setEditingEvent] = useState(null);
@@ -33,7 +37,7 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
   useEffect(() => {
     (async () => {
       await cloneRepo({
-        url: 'https://github.com/bhubr/git-agenda',
+        url,
         dir,
         accessToken: ghAccessToken,
         onSuccess: async (files) => {
@@ -50,20 +54,6 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
   const showFileContent = async (file) => {
     const content = await readFile(dir, file);
     console.log(content);
-  };
-
-  const onAddEvent = async ({
-    customerName,
-    groupName,
-    eventName,
-    eventDate,
-    fullDay,
-    startTime,
-    endTime,
-  }) => {
-    const timeInterval = fullDay ? 'Full Day' : `${startTime}-${endTime}`;
-    const line = `* ${customerName},${groupName},${eventName},${eventDate},${timeInterval}`;
-    console.log(line);
   };
 
   const onDeleteCustomer = (customerId) =>
@@ -130,7 +120,7 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
       <ul>
         {(events || []).map((item) => (
           <li key={item.id}>
-            {item.name}{' '}
+            {item.date} {item.startTime}-{item.endTime} {item.name}{' '}
             <button type="button" onClick={() => setEditingEvent(item)}>
               edit
             </button>{' '}
@@ -140,10 +130,6 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
           </li>
         ))}
       </ul>
-
-      <pre>
-        <code>{JSON.stringify(metadata, null, 2)}</code>
-      </pre>
 
       <FormCustomer
         dir={dir}

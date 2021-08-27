@@ -1,7 +1,7 @@
 import Papa from 'papaparse';
 import { readFile, writeFile } from '../../helpers/fs';
 import { addCommitPush } from '../../helpers/git';
-import { generateId } from '../../helpers/utils';
+import { generateId, sortEventByDateFn } from '../../helpers/utils';
 import { TYPE_EVENT } from '../../constants';
 
 export const EVENTS_POPULATE = 'EVENTS_POPULATE';
@@ -38,10 +38,21 @@ const eventsDeleteAction = (event) => ({
 
 const writeEvents = async ({ dir, auth, events, message }) => {
   const eventsCSV = Papa.unparse(events, {
-    columns: ['date','startTime','endTime','summary','name','code','id','fullDay','customerId','groupId']
+    columns: [
+      'date',
+      'startTime',
+      'endTime',
+      'summary',
+      'name',
+      'code',
+      'id',
+      'fullDay',
+      'customerId',
+      'groupId',
+    ],
   });
 
-  console.log(dir, auth, events, message, eventsCSV)
+  console.log(dir, auth, events, message, eventsCSV);
 
   await writeFile(dir, 'calendar.csv', eventsCSV);
   await addCommitPush({
@@ -55,10 +66,10 @@ const writeEvents = async ({ dir, auth, events, message }) => {
 
 const makeSummary = (data, customers) => {
   const { customerId, groupId } = data;
-  const cust = customers.find(c => c.id === customerId);
-  const grp = cust.groups.find(g => g.id === groupId);
+  const cust = customers.find((c) => c.id === customerId);
+  const grp = cust.groups.find((g) => g.id === groupId);
   return `${cust.name} - ${grp.name} - ${data.name}`;
-}
+};
 
 export const createEvent = (dir, data) => async (dispatch, getState) => {
   const { customers, events, auth } = getState();
@@ -66,41 +77,49 @@ export const createEvent = (dir, data) => async (dispatch, getState) => {
     id: generateId(TYPE_EVENT),
     ...data,
   };
-  const nextEvents = [...events, newEvent];
+  const nextEvents = [...events, newEvent].sort(sortEventByDateFn);
 
-  const customer = customers.find(c => c.id === newEvent.customerId);
-  const group = customer.groups.find(g => g.id === newEvent.groupId);
+  const customer = customers.find((c) => c.id === newEvent.customerId);
+  const group = customer.groups.find((g) => g.id === newEvent.groupId);
 
   await writeEvents({
     dir,
     auth,
-    events: nextEvents.map(evt => ({ ...evt, summary: makeSummary(evt, customers )})),
-    message: `[event] create event "${newEvent.name}" (${customer.name}/${group.name})`
-  })
+    events: nextEvents.map((evt) => ({
+      ...evt,
+      summary: makeSummary(evt, customers),
+    })),
+    message: `[event] create event "${newEvent.name}" (${customer.name}/${group.name})`,
+  });
 
   dispatch(eventsCreateAction(newEvent));
 };
 
-export const updateEvent = (dir, { id, ...rest }) => async (dispatch, getState) => {
-  const { customers, events, auth } = getState();
-  const existingEvent = events.find(e => e.id === id);
-  const updatedEvent = { id, ...rest };
-  const nextEvents = events.map(e => e.id === id ? updatedEvent : e);
+export const updateEvent =
+  (dir, { id, ...rest }) =>
+  async (dispatch, getState) => {
+    const { customers, events, auth } = getState();
+    const existingEvent = events.find((e) => e.id === id);
+    const updatedEvent = { id, ...rest };
+    const nextEvents = events
+      .map((e) => (e.id === id ? updatedEvent : e))
+      .sort(sortEventByDateFn);
 
-  const customer = customers.find(c => c.id === updatedEvent.customerId);
-  const group = customer.groups.find(g => g.id === updatedEvent.groupId);
+    const customer = customers.find((c) => c.id === updatedEvent.customerId);
+    const group = customer.groups.find((g) => g.id === updatedEvent.groupId);
 
-  // console.log(nextEvents)
+    await writeEvents({
+      dir,
+      auth,
+      events: nextEvents.map((evt) => ({
+        ...evt,
+        summary: makeSummary(evt, customers),
+      })),
+      message: `[event] update event "${updatedEvent.name}" (${customer.name}/${group.name})`,
+    });
 
-  await writeEvents({
-    dir,
-    auth,
-    events: nextEvents.map(evt => ({ ...evt, summary: makeSummary(evt, customers )})),
-    message: `[event] update event "${updatedEvent.name}" (${customer.name}/${group.name})`
-  })
-
-  dispatch(eventsUpdateAction(updatedEvent));
-}
+    dispatch(eventsUpdateAction(updatedEvent));
+  };
 
 /**
  * Delete an event
@@ -113,15 +132,18 @@ export const deleteEvent = (dir, eventId) => async (dispatch, getState) => {
   const { customers, events, auth } = getState();
   const deletedEvent = events.find((e) => e.id === eventId);
   const nextEvents = events.filter((e) => e.id !== eventId);
-  const customer = customers.find(c => c.id === deletedEvent.customerId);
-  const group = customer.groups.find(g => g.id === deletedEvent.groupId);
+  const customer = customers.find((c) => c.id === deletedEvent.customerId);
+  const group = customer.groups.find((g) => g.id === deletedEvent.groupId);
 
   await writeEvents({
     dir,
     auth,
-    events: nextEvents.map(evt => ({ ...evt, summary: makeSummary(evt, customers )})),
-    message: `[event] delete event "${deletedEvent.name}" (${customer.name}/${group.name})`
-  })
+    events: nextEvents.map((evt) => ({
+      ...evt,
+      summary: makeSummary(evt, customers),
+    })),
+    message: `[event] delete event "${deletedEvent.name}" (${customer.name}/${group.name})`,
+  });
 
   dispatch(eventsDeleteAction(deletedEvent));
 };

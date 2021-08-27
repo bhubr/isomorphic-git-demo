@@ -163,7 +163,6 @@ export default function FormEventContainer({ dir, event, onCancel }) {
     }
   }, [event]);
 
-
   useEffect(() => {
     console.log('customer change effect', customerId);
     setGroupId('');
@@ -175,7 +174,6 @@ export default function FormEventContainer({ dir, event, onCancel }) {
 
   const onUpdateEvent = () =>
     dispatch(updateEvent(dir, { id: event?.id, customerId, groupId, ...data }));
-
 
   const onReset = () => {
     onCancel();
