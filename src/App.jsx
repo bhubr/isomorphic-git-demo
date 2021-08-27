@@ -9,7 +9,6 @@ import withAuth from './withAuth';
 
 import './App.css';
 
-
 function App({ auth, onLogout, onCodeSuccess, onCodeFailure }) {
   let content;
 

@@ -5,8 +5,9 @@ const url = 'https://github.com/bhubr/git-agenda';
 // const url = 'https://github.com/bhubr/git-calendar'
 
 const initialState = {
-  dir, url,
-}
+  dir,
+  url,
+};
 
 export default function repoReducer(state = initialState, action) {
   switch (action.type) {

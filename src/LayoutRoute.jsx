@@ -3,9 +3,7 @@ import { Route, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { cloneRepo } from './helpers/git';
-import {
-  readMetadata,
-} from './store/actions/metadata';
+import { readMetadata } from './store/actions/metadata';
 import { readEvents } from './store/actions/events';
 import { setError } from './store/actions/error';
 
@@ -16,11 +14,13 @@ export default function LayoutRoute({
   component: Component,
   routerProps,
 }) {
-  const { repo: { url, dir } } = useSelector(state => ({
+  const {
+    repo: { url, dir },
+  } = useSelector((state) => ({
     repo: state.repo,
     error: state.error,
   }));
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   useEffect(() => {
     (async () => {
       await cloneRepo({
@@ -47,13 +47,21 @@ export default function LayoutRoute({
           </li>
         </ul>
         <div className="nav-logout">
-        <span>Logged in as {user.name}</span>
-        <button type="button" onClick={onLogout}>
-          Logout
-        </button>
+          <span>Logged in as {user.name}</span>
+          <button type="button" onClick={onLogout}>
+            Logout
+          </button>
         </div>
       </nav>
-      <Route render={() => <Component {...routerProps} user={user} ghAccessToken={ghAccessToken} />} />
+      <Route
+        render={() => (
+          <Component
+            {...routerProps}
+            user={user}
+            ghAccessToken={ghAccessToken}
+          />
+        )}
+      />
     </div>
   );
 }

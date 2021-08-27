@@ -5,12 +5,7 @@ import useForm from './hooks/useForm';
 import { generateId } from './helpers/utils';
 import { TYPE_EVENT } from './constants';
 
-function FormEventClone({
-  onSubmit,
-  onCancel,
-  data,
-  setProp,
-}) {
+function FormEventClone({ onSubmit, onCancel, data, setProp }) {
   return (
     <>
       <form onSubmit={onSubmit}>
@@ -61,7 +56,6 @@ export default function FormEventCloneContainer({ dir, event, onCancel }) {
 
   const onCloneEvent = () =>
     dispatch(createEvent(dir, { id: generateId(TYPE_EVENT), ...data }));
-
 
   const onSubmit = async (e) => {
     e.preventDefault();

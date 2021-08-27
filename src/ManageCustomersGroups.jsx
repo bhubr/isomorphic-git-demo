@@ -15,13 +15,16 @@ export default function ManageCustomersGroups() {
   const [editingCustomer, setEditingCustomer] = useState(null);
   const [editingGroup, setEditingGroup] = useState(null);
 
-  const { repo: { dir }, customers, groups } = useSelector((state) => ({
+  const {
+    repo: { dir },
+    customers,
+    groups,
+  } = useSelector((state) => ({
     repo: state.repo,
     customers: state.customers,
     groups: state.metadata?.groups,
   }));
   const dispatch = useDispatch();
-
 
   const onDeleteCustomer = (customerId) =>
     dispatch(deleteCustomer(dir, customerId));

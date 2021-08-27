@@ -16,5 +16,4 @@ export default function useForm(initialData) {
     setData,
     setProp,
   };
-};
-
+}

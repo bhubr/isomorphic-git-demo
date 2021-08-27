@@ -9,21 +9,24 @@ import { deleteEvent } from './store/actions/events';
 
 const customModalStyles = {
   overlay: {
-    backgroundColor: 'black'
+    backgroundColor: 'black',
   },
   content: {
     backgroundColor: '#333',
-    color: '#ddd'
-  }
-}
+    color: '#ddd',
+  },
+};
 
-const stripEventId = ({ id, ...event }) => event
+const stripEventId = ({ id, ...event }) => event;
 
 export default function Dashboard() {
   const [editingEvent, setEditingEvent] = useState(null);
   const [cloningEvent, setCloningEvent] = useState(null);
 
-  const { repo: { dir }, events } = useSelector((state) => ({
+  const {
+    repo: { dir },
+    events,
+  } = useSelector((state) => ({
     repo: state.repo,
     events: state.events,
   }));
@@ -33,7 +36,6 @@ export default function Dashboard() {
 
   return (
     <main>
-
       <h3>Events</h3>
       <ul>
         {(events || []).map((item) => (
@@ -42,7 +44,10 @@ export default function Dashboard() {
             <button type="button" onClick={() => setEditingEvent(item)}>
               edit
             </button>{' '}
-            <button type="button" onClick={() => setCloningEvent(stripEventId(item))}>
+            <button
+              type="button"
+              onClick={() => setCloningEvent(stripEventId(item))}
+            >
               clone
             </button>{' '}
             <button type="button" onClick={() => onDeleteEvent(item.id)}>
@@ -51,7 +56,7 @@ export default function Dashboard() {
           </li>
         ))}
       </ul>
-      
+
       <FormEvent
         dir={dir}
         event={editingEvent}
@@ -63,8 +68,16 @@ export default function Dashboard() {
         style={customModalStyles}
       >
         <h2>Clone event</h2>
-        <button type="button" onClick={() => setCloningEvent(null)}>close</button>
-        {cloningEvent && <FormEventClone dir={dir} event={cloningEvent} onCancel={() => setCloningEvent(null)} />}
+        <button type="button" onClick={() => setCloningEvent(null)}>
+          close
+        </button>
+        {cloningEvent && (
+          <FormEventClone
+            dir={dir}
+            event={cloningEvent}
+            onCancel={() => setCloningEvent(null)}
+          />
+        )}
       </Modal>
     </main>
   );
