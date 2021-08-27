@@ -36,9 +36,9 @@ const ColoredDateCellWrapper = ({ children }) =>
   });
 
 const stripEventId = ({ id, ...event }) => event;
-let i = 1;
+
 const mapEventToBigCalendar = ({ id, name: title, summary: desc, fullDay: allDay, date, startTime, endTime }) => ({
-  id: i++, desc, title, allDay, start: new Date(`${date} ${startTime}`), end: new Date(`${date} ${endTime}`)
+  id, desc, title, allDay, start: new Date(`${date} ${startTime}`), end: new Date(`${date} ${endTime}`)
 })
 
 export default function Dashboard() {
@@ -81,6 +81,21 @@ export default function Dashboard() {
 
   return (
     <main>
+
+      <Calendar
+        events={calendarEvents}
+        views={allViews}
+        step={60}
+        showMultiDayTimes
+        max={dates.add(dates.endOf(new Date(2021, 19, 1), 'day'), -1, 'hours')}
+        defaultDate={new Date(2021, 7, 1)}
+        components={{
+          timeSlotWrapper: ColoredDateCellWrapper,
+        }}
+        localizer={localizer}
+      />
+
+      <h3>Events</h3>
       <Select
         // id, name, label, options, value, onChange
         id="filter-by-summary"
@@ -99,21 +114,6 @@ export default function Dashboard() {
         value={eventMonthFilter}
         onChange={(e) => setEventMonthFilter(e.target.value)}
       />
-
-      <Calendar
-        events={calendarEvents}
-        views={allViews}
-        step={60}
-        showMultiDayTimes
-        max={dates.add(dates.endOf(new Date(2021, 19, 1), 'day'), -1, 'hours')}
-        defaultDate={new Date(2021, 7, 1)}
-        components={{
-          timeSlotWrapper: ColoredDateCellWrapper,
-        }}
-        localizer={localizer}
-      />
-
-      <h3>Events</h3>
 
       <ul>
         {(
