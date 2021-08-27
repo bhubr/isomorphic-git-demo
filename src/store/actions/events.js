@@ -83,6 +83,7 @@ export const createEvent = (dir, data) => async (dispatch, getState) => {
   const newEvent = {
     id: generateId(TYPE_EVENT),
     ...data,
+    summary: makeSummary(data, customers),
   };
   const nextEvents = [...events, newEvent].sort(sortEventByDateFn);
   const eventsWithSummary = nextEvents.map((evt) => ({
