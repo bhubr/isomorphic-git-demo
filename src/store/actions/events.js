@@ -24,8 +24,9 @@ export const readEvents = (dir) => async (dispatch) => {
   const { data: events, ...rest } = Papa.parse(calendarCsv.trim(), {
     header: true,
   });
+  const sanitizedEvents = events.map(({ fullDay, ...evt }) => ({ ...evt, fullDay: fullDay === 'true' }))
   console.log('csv parse', calendarCsv, events, rest);
-  dispatch(eventsPopulateAction(events));
+  dispatch(eventsPopulateAction(sanitizedEvents));
 };
 
 const eventsCreateAction = (event) => ({
