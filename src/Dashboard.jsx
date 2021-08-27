@@ -7,6 +7,7 @@ import FormEvent from './FormEvent';
 import FormEventClone from './FormEventClone';
 import Select from './components/Select';
 import { deleteEvent } from './store/actions/events';
+import { formatDateMonth } from './helpers/utils';
 
 const customModalStyles = {
   overlay: {
@@ -23,8 +24,10 @@ const stripEventId = ({ id, ...event }) => event;
 export default function Dashboard() {
   const [editingEvent, setEditingEvent] = useState(null);
   const [cloningEvent, setCloningEvent] = useState(null);
-  const [eventOptions, setEventOptions] = useState([]);
+  const [eventSummaryOptions, setEventSummaryOptions] = useState([]);
   const [eventSummaryFilter, setEventSummaryFilter] = useState('');
+  const [eventMonthOptions, setEventMonthOptions] = useState([]);
+  const [eventMonthFilter, setEventMonthFilter] = useState('');
 
   const {
     repo: { dir },
@@ -43,7 +46,15 @@ export default function Dashboard() {
           : [...carry, { id: summary, name: summary }],
       [],
     );
-    setEventOptions(eventSumOptions);
+    setEventSummaryOptions(eventSumOptions);
+    const eventMthOptions = events.reduce(
+      (carry, { date }) =>
+        carry.find((it) => it.id === date.substr(0, 7))
+          ? carry
+          : [...carry, { id: date.substr(0, 7), name: formatDateMonth(date) }],
+      [],
+    );
+    setEventMonthOptions(eventMthOptions);
   }, [events]);
 
   const onDeleteEvent = (eventId) => dispatch(deleteEvent(dir, eventId));
@@ -56,15 +67,29 @@ export default function Dashboard() {
         id="filter-by-summary"
         name="event-summary"
         label="Filter by event summary"
-        options={eventOptions}
+        options={eventSummaryOptions}
         value={eventSummaryFilter}
         onChange={(e) => setEventSummaryFilter(e.target.value)}
       />
+      <Select
+        // id, name, label, options, value, onChange
+        id="filter-by-month"
+        name="event-month"
+        label="Filter by month"
+        options={eventMonthOptions}
+        value={eventMonthFilter}
+        onChange={(e) => setEventMonthFilter(e.target.value)}
+      />
       <ul>
         {(
-          events.filter(
-            (e) => !eventSummaryFilter || e.summary === eventSummaryFilter,
-          ) || []
+          events
+            .filter(
+              (e) => !eventSummaryFilter || e.summary === eventSummaryFilter,
+            )
+            .filter(
+              (e) =>
+                !eventMonthFilter || e.date.substr(0, 7) === eventMonthFilter,
+            ) || []
         ).map((item) => (
           <li key={item.id}>
             {item.date} {item.startTime}-{item.endTime} {item.summary}{' '}
