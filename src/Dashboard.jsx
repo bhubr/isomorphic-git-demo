@@ -64,12 +64,6 @@ export default function Dashboard({ ghAccessToken, user, onLogout }) {
 
   return (
     <main>
-      <nav>
-        <span>Logged in as {user.name}</span>{' '}
-        <button type="button" onClick={onLogout}>
-          Logout
-        </button>
-      </nav>
 
       <h3>Repo content</h3>
       <ul>
